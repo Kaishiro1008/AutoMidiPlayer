@@ -62,7 +62,7 @@ public partial class Slider : UserControl
         nameof(ThumbToolTipOptions), typeof(string), typeof(Slider), new PropertyMetadata(string.Empty, OnThumbToolTipOptionsChanged));
 
     public static readonly DependencyProperty ThumbToolTipFallbackProperty = DependencyProperty.Register(
-        nameof(ThumbToolTipFallback), typeof(string), typeof(Slider), new PropertyMetadata("Value: {0}"));
+        nameof(ThumbToolTipFallback), typeof(string), typeof(Slider), new PropertyMetadata("{0}"));
 
     public static readonly DependencyProperty AnimationDurationMsProperty = DependencyProperty.Register(
         nameof(AnimationDurationMs), typeof(double), typeof(Slider), new PropertyMetadata(140d));

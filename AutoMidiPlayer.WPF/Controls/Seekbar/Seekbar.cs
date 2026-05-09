@@ -109,7 +109,7 @@ public partial class Seekbar : UserControl
         nameof(ThumbToolTipOptions), typeof(string), typeof(Seekbar), new PropertyMetadata(string.Empty, OnThumbToolTipOptionsChanged));
 
     public static readonly DependencyProperty ThumbToolTipFallbackProperty = DependencyProperty.Register(
-        nameof(ThumbToolTipFallback), typeof(string), typeof(Seekbar), new PropertyMetadata("Value: {0}"));
+        nameof(ThumbToolTipFallback), typeof(string), typeof(Seekbar), new PropertyMetadata("0:00"));
 
     public static readonly DependencyProperty AnimationDurationMsProperty = DependencyProperty.Register(
         nameof(AnimationDurationMs), typeof(double), typeof(Seekbar), new PropertyMetadata(140d));

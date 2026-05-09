@@ -685,7 +685,10 @@
                 <controls:SimpleStackPanel Spacing="4">
                     <TextBlock TextWrapping="Wrap"
                                FontSize="12">
-                    Originally created by © 2022 sabihoshi. Modified by © 2026 Jed556 for multi-game support and modernization.
+                    Adapted and expanded by © 2026 Jed556.
+                    Originally forked from © 2022
+                    <Hyperlink NavigateUri="https://github.com/sabihoshi/GenshinLyreMidiPlayer"
+                               Style="{DynamicResource AppHyperlinkStyle}">sabihoshi/GenshinLyreMidiPlayer</Hyperlink>.
                     Licensed under the
                     <Hyperlink NavigateUri="{Binding Default.LicenseUri, Source={StaticResource Settings}}"
                                Style="{DynamicResource AppHyperlinkStyle}">MIT License</Hyperlink>.
@@ -701,7 +704,7 @@
                                Opacity="0.7">
 
                     All rights reserved by © miHoYo Co., Ltd., © XD Inc., © thatgamecompany, Inc., and © Roblox Corporation.
-                    Not affiliated with miHoYo, XD, thatgamecompany, or Roblox.
+                    Not affiliated with miHoYo, XD, thatgamecompany, Roblox or © Hotta Studio.
                     </TextBlock>
                 </controls:SimpleStackPanel>
             </controls:Section>
