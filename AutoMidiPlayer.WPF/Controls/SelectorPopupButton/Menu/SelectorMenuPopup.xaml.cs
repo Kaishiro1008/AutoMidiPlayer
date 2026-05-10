@@ -202,25 +202,11 @@ public partial class SelectorMenuPopup : UserControl
 
     private async Task CloseWithAnimationCoreAsync()
     {
-        if (PopupSurface.RenderTransform is not TranslateTransform translateTransform)
-        {
-            translateTransform = new TranslateTransform();
-            PopupSurface.RenderTransform = translateTransform;
-        }
-
-        var closeOffset = SelectorPopup.Placement == PlacementMode.Top ? 8d : -8d;
         var easing = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseIn };
         PopupSurface.BeginAnimation(UIElement.OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation
         {
             To = 0d,
             Duration = TimeSpan.FromMilliseconds(110),
-            EasingFunction = easing
-        });
-
-        translateTransform.BeginAnimation(TranslateTransform.YProperty, new System.Windows.Media.Animation.DoubleAnimation
-        {
-            To = closeOffset,
-            Duration = TimeSpan.FromMilliseconds(120),
             EasingFunction = easing
         });
 
@@ -237,7 +223,10 @@ public partial class SelectorMenuPopup : UserControl
 
         // Check if mouse is actually over the popup
         if (!IsMouseOverPopup(e))
+        {
+            _ = CloseWithAnimationAsync();
             return;
+        }
 
         // Mouse IS over popup - handle scrolling in the popup and consume the event
         e.Handled = true;
@@ -245,7 +234,7 @@ public partial class SelectorMenuPopup : UserControl
         ScrollPopupItems(e.Delta);
     }
 
-    private bool IsMouseOverPopup(MouseEventArgs e)
+    public bool IsMouseOverPopup(MouseEventArgs e)
     {
         if (SelectorListBox is not { } listBox)
             return false;

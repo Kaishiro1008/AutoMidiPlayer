@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Data;
 using System.Globalization;
+using System.Windows.Threading;
 
 namespace AutoMidiPlayer.WPF.Controls.SelectorPopupButton.Button;
 
@@ -141,6 +142,12 @@ public partial class StandardDropdown : UserControl
     public static readonly DependencyProperty DisplayMemberPathProperty =
         DependencyProperty.Register(nameof(DisplayMemberPath), typeof(string), typeof(StandardDropdown), new PropertyMetadata(null));
 
+    public static readonly DependencyProperty IsGlowActiveProperty = DependencyProperty.Register(
+        nameof(IsGlowActive),
+        typeof(bool),
+        typeof(StandardDropdown),
+        new PropertyMetadata(false));
+
     public static readonly DependencyProperty SelectedIndexProperty =
         DependencyProperty.Register(
             nameof(SelectedIndex),
@@ -153,6 +160,12 @@ public partial class StandardDropdown : UserControl
     public static readonly RoutedEvent SelectionChangedEvent = EventManager.RegisterRoutedEvent(
         nameof(SelectionChanged), RoutingStrategy.Bubble, typeof(SelectionChangedEventHandler), typeof(StandardDropdown));
 
+    private readonly DispatcherTimer _glowTimer = new()
+    {
+        Interval = TimeSpan.FromMilliseconds(450)
+    };
+    private bool _isLoaded = false;
+
     public event SelectionChangedEventHandler SelectionChanged
     {
         add => AddHandler(SelectionChangedEvent, value);
@@ -162,6 +175,14 @@ public partial class StandardDropdown : UserControl
     public StandardDropdown()
     {
         InitializeComponent();
+
+        _glowTimer.Tick += (_, _) =>
+        {
+            _glowTimer.Stop();
+            IsGlowActive = false;
+        };
+
+        Loaded += (_, _) => _isLoaded = true;
     }
 
     public object? ButtonContent
@@ -206,6 +227,12 @@ public partial class StandardDropdown : UserControl
         set => SetValue(DisplayMemberPathProperty, value);
     }
 
+    public bool IsGlowActive
+    {
+        get => (bool)GetValue(IsGlowActiveProperty);
+        set => SetValue(IsGlowActiveProperty, value);
+    }
+
     public double PopupMaxWidth
     {
         get => (double)GetValue(PopupMaxWidthProperty);
@@ -218,14 +245,49 @@ public partial class StandardDropdown : UserControl
         set => SetValue(PopupMaxHeightProperty, value);
     }
 
+    private void SelectorButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (!MenuPopup.IsOpen)
+            return;
+
+        MenuPopup.IsOpen = false;
+        e.Handled = true;
+    }
+
     private void SelectorButton_Click(object sender, RoutedEventArgs e)
     {
-        MenuPopup.IsOpen = !MenuPopup.IsOpen;
+        TogglePopup();
         e.Handled = true;
+    }
+
+    private void TogglePopup()
+    {
+        MenuPopup.IsOpen = !MenuPopup.IsOpen;
     }
 
     private void MenuPopup_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         RaiseEvent(new SelectionChangedEventArgs(SelectionChangedEvent, e.RemovedItems, e.AddedItems));
+        if (_isLoaded)
+            TriggerGlow();
+    }
+
+    private void TriggerGlow()
+    {
+        IsGlowActive = true;
+        _glowTimer.Stop();
+        _glowTimer.Start();
+    }
+
+    protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
+    {
+        if (MenuPopup.IsOpen && !MenuPopup.IsMouseOverPopup(e))
+        {
+            MenuPopup.IsOpen = false;
+            base.OnPreviewMouseWheel(e);
+            return;
+        }
+
+        base.OnPreviewMouseWheel(e);
     }
 }

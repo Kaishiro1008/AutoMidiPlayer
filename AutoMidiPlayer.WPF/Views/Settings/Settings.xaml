@@ -173,32 +173,34 @@
                     <!-- Keybinds Section -->
                     <controls:Section Title="Keybinds"
                                       Margin="0,16,0,0">
+                        <controls:Section.HeaderContent>
+                            <Button Style="{DynamicResource IconButton}"
+                                    Command="{s:Action ResetHotkeys}"
+                                    ToolTip="Reset all hotkeys to defaults"
+                                    Visibility="{Binding HotkeysEnabled, Converter={x:Static s:BoolToVisibilityConverter.Instance}}"
+                                    Margin="0,0,0,2">
+                                <ui:SymbolIcon Symbol="ArrowClockwise24"
+                                               FontSize="18"
+                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                            </Button>
+                        </controls:Section.HeaderContent>
                         <controls:SimpleStackPanel>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <ui:ToggleSwitch Grid.Column="0"
                                                  Content="Enable global hotkeys"
                                                  IsChecked="{Binding HotkeysEnabled}"
                                                  ToolTip="When enabled, hotkeys work even when the app is not focused"/>
-                                <Button Style="{DynamicResource IconButton}"
-                                        Grid.Column="2"
-                                        Command="{s:Action ResetHotkeys}"
-                                        ToolTip="Reset all hotkeys to defaults"
-                                        Visibility="{Binding HotkeysEnabled, Converter={x:Static s:BoolToVisibilityConverter.Instance}}">
-                                    <ui:SymbolIcon Symbol="ArrowClockwise24"
-                                                   FontSize="18"/>
-                                </Button>
                             </Grid>
 
                             <TextBlock Text="Global hotkeys work even when the app is not in focus. Requires at least one modifier key (Ctrl, Alt, Shift)."
                                        TextWrapping="Wrap"
                                        Opacity="0.6"
                                        FontSize="12"
-                                       Margin="0,-8,0,0"/>
+                                       Margin="0,0,0,0"/>
 
                             <GroupBox Header="Stop Playback on Mouse Click"
                                       Visibility="{Binding HotkeysEnabled, Converter={x:Static s:BoolToVisibilityConverter.Instance}}">
@@ -449,7 +451,7 @@
 
                             <ui:ToggleSwitch Content="Auto Detect Base Key"
                                              IsChecked="{Binding AutoDetectBaseKey}"
-                                             Margin="0,8,0,0"
+                                             Margin="0,0,0,0"
                                              ToolTip="When enabled, newly imported songs try to auto-detect the song base key. If detection fails, the key defaults above are used."/>
 
                             <Grid Margin="0,8,0,0">
@@ -527,7 +529,7 @@
                                            Visibility="{Binding NeedsUpdate, Converter={x:Static s:BoolToVisibilityConverter.Instance}}">
                                     <Run Text="{Binding LatestVersion.TagName}"/>
                                 </TextBlock>
-                                <controls:Hyperlink NavigateUri="{Binding LatestVersion.Url}"
+                                <controls:Hyperlink NavigateUri="{Binding LatestVersion.Url, TargetNullValue={x:Null}}"
                                                     Padding="2"
                                                     NormalOpacity="0.42"
                                                     PointerOverOpacity="1"
@@ -691,14 +693,32 @@
                 <controls:SimpleStackPanel Spacing="4">
                     <TextBlock TextWrapping="Wrap"
                                FontSize="12">
-                        <Run Text="Adapted and expanded by © 2026 Jed556. Originally forked from © 2021 "/><InlineUIContainer BaselineAlignment="Center"><controls:Hyperlink NavigateUri="https://github.com/sabihoshi/GenshinLyreMidiPlayer"><TextBlock Text="sabihoshi/GenshinLyreMidiPlayer"
-                                                                                                                                                                                                                                                         FontSize="12"/></controls:Hyperlink></InlineUIContainer><Run Text=". Licensed under the "/><InlineUIContainer BaselineAlignment="Center"><controls:Hyperlink NavigateUri="{Binding Default.LicenseUri, Source={StaticResource Settings}}"><TextBlock Text="MIT License"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              FontSize="12"/></controls:Hyperlink></InlineUIContainer><Run Text="."/>
+                        <Run Text="Adapted and expanded by © 2026 Jed556. Originally forked from © 2021 "/>
+                        <InlineUIContainer BaselineAlignment="Center">
+                            <controls:Hyperlink NavigateUri="https://github.com/sabihoshi/GenshinLyreMidiPlayer">
+                                <TextBlock Text="sabihoshi/GenshinLyreMidiPlayer"
+                                           FontSize="12"/>
+                            </controls:Hyperlink>
+                        </InlineUIContainer>
+                        <Run Text=". Licensed under the "/>
+                        <InlineUIContainer BaselineAlignment="Center">
+                            <controls:Hyperlink NavigateUri="{Binding Default.LicenseUri, Source={StaticResource Settings}, TargetNullValue={x:Null}}">
+                                <TextBlock Text="MIT License"
+                                           FontSize="12"/>
+                            </controls:Hyperlink>
+                        </InlineUIContainer>
+                        <Run Text="."/>
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap"
                                FontSize="12">
-                        <Run Text="This project uses third-party libraries that may be distributed under "/><InlineUIContainer BaselineAlignment="Center"><controls:Hyperlink NavigateUri="{Binding Default.ThirdPartyLicenseUri, Source={StaticResource Settings}}"><TextBlock Text="different licenses"
-                                                                                                                                                                                                                                                                                FontSize="12"/></controls:Hyperlink></InlineUIContainer><Run Text="."/>
+                        <Run Text="This project uses third-party libraries that may be distributed under "/>
+                        <InlineUIContainer BaselineAlignment="Center">
+                            <controls:Hyperlink NavigateUri="{Binding Default.ThirdPartyLicenseUri, Source={StaticResource Settings}, TargetNullValue={x:Null}}">
+                                <TextBlock Text="different licenses"
+                                           FontSize="12"/>
+                            </controls:Hyperlink>
+                        </InlineUIContainer>
+                        <Run Text="."/>
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap"
                                FontSize="11"
