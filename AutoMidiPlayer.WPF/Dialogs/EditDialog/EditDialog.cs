@@ -30,15 +30,15 @@ public partial class EditDialog : ContentDialog
     private Wpf.Ui.Controls.TextBox _titleBox => TitleBox;
     private Wpf.Ui.Controls.TextBox _artistBox => ArtistBox;
     private Wpf.Ui.Controls.TextBox _albumBox => AlbumBox;
-    private System.Windows.Controls.ComboBox _baseKeyComboBox => BaseKeyComboBox;
-    private System.Windows.Controls.ComboBox _keyComboBox => KeyComboBox;
-    private System.Windows.Controls.ComboBox _transposeComboBox => TransposeComboBox;
+    private AutoMidiPlayer.WPF.Controls.SelectorPopupButton.Button.StandardDropdown _baseKeyComboBox => BaseKeyComboBox;
+    private AutoMidiPlayer.WPF.Controls.SelectorPopupButton.Button.StandardDropdown _keyComboBox => KeyComboBox;
+    private AutoMidiPlayer.WPF.Controls.SelectorPopupButton.Button.StandardDropdown _transposeComboBox => TransposeComboBox;
     private System.Windows.Controls.TextBlock _dateText => DateText;
     private Wpf.Ui.Controls.TextBox _bpmBox => BpmBox;
     private ToggleSwitch _mergeNotesToggle => MergeNotesToggle;
     private Wpf.Ui.Controls.TextBox _mergeMillisecondsBox => MergeMillisecondsBox;
     private ToggleSwitch _holdNotesToggle => HoldNotesToggle;
-    private System.Windows.Controls.ComboBox _speedComboBox => SpeedComboBox;
+    private AutoMidiPlayer.WPF.Controls.SelectorPopupButton.Button.StandardDropdown _speedComboBox => SpeedComboBox;
 
     private readonly string _midiFilePath;
     private readonly System.Collections.Generic.List<MusicConstants.SpeedOption> _speedOptions;

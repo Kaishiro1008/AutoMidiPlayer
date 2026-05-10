@@ -161,6 +161,14 @@ public static class ScrollViewerAutoFadeBehavior
                 return;
             }
 
+            // Check if mouse is over an open popup
+            if (IsMouseOverOpenPopup())
+            {
+                // Mark as handled to prevent parent scrolling when cursor is over popup
+                e.Handled = true;
+                return;
+            }
+
             if (_viewer.ComputedVerticalScrollBarVisibility != Visibility.Visible)
                 return;
 
@@ -218,6 +226,36 @@ public static class ScrollViewerAutoFadeBehavior
             var deltaOffset = (wheelDelta / 120d) * step * directionFactor;
             ApplyHorizontalSmoothDelta(deltaOffset);
             return true;
+        }
+
+        private bool IsMouseOverOpenPopup()
+        {
+            // Get the element currently under the mouse
+            if (Mouse.DirectlyOver is not DependencyObject elementUnderMouse)
+                return false;
+
+            // Walk up the logical/visual tree to find if we're inside a Popup
+            var current = elementUnderMouse;
+            while (current != null)
+            {
+                // Check if this element is a Popup that is open
+                if (current is Popup popup && popup.IsOpen)
+                    return true;
+
+                // For elements inside a Popup, check the LogicalParent
+                // because Popup's Child is set via the LogicalTree
+                var parent = LogicalTreeHelper.GetParent(current);
+                if (parent != null)
+                {
+                    current = parent;
+                    continue;
+                }
+
+                // If no logical parent, try visual parent
+                current = VisualTreeHelper.GetParent(current);
+            }
+
+            return false;
         }
 
         private void OnViewerScrollChanged(object sender, ScrollChangedEventArgs e)

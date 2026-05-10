@@ -11,6 +11,7 @@
     xmlns:pages="clr-namespace:AutoMidiPlayer.WPF.Views"
     xmlns:helpers="clr-namespace:AutoMidiPlayer.WPF.Helpers"
     xmlns:controls="clr-namespace:AutoMidiPlayer.WPF.Controls"
+    xmlns:button="clr-namespace:AutoMidiPlayer.WPF.Controls.SelectorPopupButton.Button"
     xmlns:viewModels="clr-namespace:AutoMidiPlayer.WPF.ViewModels"
     xmlns:services="clr-namespace:AutoMidiPlayer.WPF.Services"
     xmlns:core="clr-namespace:AutoMidiPlayer.WPF.Core"
@@ -1207,12 +1208,12 @@
                                                    Spacing="8">
 
                             <!-- Key -->
-                            <controls:SelectorPopupButton ToolTip="Key offset for transposition"
+                            <button:PlayerControlDropdown ToolTip="Key offset for transposition"
                                                           ItemsSource="{Binding SongSettings.KeyOptions}"
                                                           SelectedItem="{Binding SongSettings.SelectedKeyOption, Mode=TwoWay}"
                                                           ItemTemplate="{StaticResource SelectorKeyItemTemplate}"
                                                           PopupMaxWidth="220">
-                                <controls:SelectorPopupButton.ButtonContent>
+                                <button:PlayerControlDropdown.ButtonContent>
                                     <StackPanel Orientation="Horizontal"
                                                 VerticalAlignment="Center">
                                         <TextBlock Text="{Binding SongSettings.KeyDisplayText}"
@@ -1227,17 +1228,17 @@
                                                        VerticalAlignment="Center"
                                                        Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
                                     </StackPanel>
-                                </controls:SelectorPopupButton.ButtonContent>
-                            </controls:SelectorPopupButton>
+                                </button:PlayerControlDropdown.ButtonContent>
+                            </button:PlayerControlDropdown>
 
                             <!-- Speed -->
-                            <controls:SelectorPopupButton ToolTip="Playback speed"
+                            <button:PlayerControlDropdown ToolTip="Playback speed"
                                                           ItemsSource="{Binding SongSettings.SpeedOptions}"
                                                           SelectedItem="{Binding SongSettings.SelectedSpeedOption, Mode=TwoWay}"
                                                           IsActive="{Binding SongSettings.IsSpeedActive}"
                                                           ItemTemplate="{StaticResource SelectorDisplayItemTemplate}"
                                                           PopupMaxWidth="190">
-                                <controls:SelectorPopupButton.ButtonContent>
+                                <button:PlayerControlDropdown.ButtonContent>
                                     <StackPanel Orientation="Horizontal"
                                                 VerticalAlignment="Center">
                                         <TextBlock VerticalAlignment="Center"
@@ -1276,17 +1277,17 @@
                                             </ui:SymbolIcon.Style>
                                         </ui:SymbolIcon>
                                     </StackPanel>
-                                </controls:SelectorPopupButton.ButtonContent>
-                            </controls:SelectorPopupButton>
+                                </button:PlayerControlDropdown.ButtonContent>
+                            </button:PlayerControlDropdown>
 
                             <!-- Transpose Mode -->
-                            <controls:SelectorPopupButton ToolTip="Transpose mode for out-of-range notes"
+                            <button:PlayerControlDropdown ToolTip="Transpose mode for out-of-range notes"
                                                           ItemsSource="{x:Static services:SongService.TransposeNames}"
                                                           SelectedItem="{Binding SongSettings.Transpose, Mode=TwoWay}"
                                                           IsActive="{Binding SongSettings.IsTransposeActive}"
                                                           ItemTemplate="{StaticResource SelectorTransposeItemTemplate}"
                                                           PopupMaxWidth="190">
-                                <controls:SelectorPopupButton.ButtonContent>
+                                <button:PlayerControlDropdown.ButtonContent>
                                     <StackPanel Orientation="Horizontal"
                                                 VerticalAlignment="Center">
                                         <TextBlock VerticalAlignment="Center"
@@ -1354,8 +1355,8 @@
                                             </Path.Style>
                                         </Path>
                                     </StackPanel>
-                                </controls:SelectorPopupButton.ButtonContent>
-                            </controls:SelectorPopupButton>
+                                </button:PlayerControlDropdown.ButtonContent>
+                            </button:PlayerControlDropdown>
                         </controls:SimpleStackPanel>
                     </Grid>
                 </Grid>

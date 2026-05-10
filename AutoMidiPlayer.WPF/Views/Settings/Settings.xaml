@@ -9,6 +9,7 @@
     xmlns:s="https://github.com/canton7/Stylet"
     xmlns:core="clr-namespace:AutoMidiPlayer.WPF.Core"
     xmlns:controls="clr-namespace:AutoMidiPlayer.WPF.Controls"
+    xmlns:button="clr-namespace:AutoMidiPlayer.WPF.Controls.SelectorPopupButton.Button"
     xmlns:viewModels="clr-namespace:AutoMidiPlayer.WPF.ViewModels"
     xmlns:transitions="clr-namespace:AutoMidiPlayer.WPF.Animation.Transitions"
     xmlns:properties="clr-namespace:AutoMidiPlayer.Data.Properties;assembly=AutoMidiPlayer.Data"
@@ -133,7 +134,7 @@
 
                             <GroupBox Header="Keypress Method"
                                       Margin="0,8,0,0">
-                                <ComboBox
+                                <button:StandardDropdown
                                     SelectedItem="{Binding SelectedKeypressInputMode}"
                                     ItemsSource="{x:Static viewModels:SettingsPageViewModel.KeypressInputModes}"
                                     DisplayMemberPath="Name"
@@ -200,7 +201,7 @@
 
                             <GroupBox Header="Stop Playback on Mouse Click"
                                       Visibility="{Binding HotkeysEnabled, Converter={x:Static s:BoolToVisibilityConverter.Instance}}">
-                                <ComboBox
+                                <button:StandardDropdown
                                     SelectedItem="{Binding SelectedMouseStopClickOption}"
                                     ItemsSource="{x:Static viewModels:SettingsPageViewModel.MouseStopClickOptions}"
                                     DisplayMemberPath="Name"
@@ -427,7 +428,7 @@
                                                                Spacing="4">
                                         <TextBlock Text="Base Key Offset"
                                                    FontWeight="SemiBold"/>
-                                        <ComboBox SelectedItem="{Binding SelectedNewSongBaseKeyOption}"
+                                        <button:StandardDropdown SelectedItem="{Binding SelectedNewSongBaseKeyOption}"
                                                   ItemsSource="{x:Static viewModels:SettingsPageViewModel.NewSongBaseKeyOptions}"
                                                   ItemTemplate="{StaticResource OffsetNoteTemplate}"
                                                   MinWidth="150"/>
@@ -437,7 +438,7 @@
                                                                Spacing="4">
                                         <TextBlock Text="Key Offset"
                                                    FontWeight="SemiBold"/>
-                                        <ComboBox SelectedItem="{Binding SelectedNewSongKeyOption}"
+                                        <button:StandardDropdown SelectedItem="{Binding SelectedNewSongKeyOption}"
                                                   ItemsSource="{Binding NewSongKeyOptions}"
                                                   ItemTemplate="{StaticResource OffsetNoteTemplate}"
                                                   MinWidth="150"/>
@@ -459,7 +460,7 @@
 
                                 <GroupBox Grid.Column="0"
                                           Header="Transpose">
-                                    <ComboBox SelectedItem="{Binding SelectedNewSongTransposeOption}"
+                                    <button:StandardDropdown SelectedItem="{Binding SelectedNewSongTransposeOption}"
                                               ItemsSource="{x:Static viewModels:SettingsPageViewModel.NewSongTransposeOptions}"
                                               DisplayMemberPath="Value"
                                               MinWidth="150"/>
@@ -559,7 +560,7 @@
                                       Margin="0,16,0,0">
                         <controls:SimpleStackPanel>
                             <GroupBox Header="Theme Mode">
-                                <ComboBox
+                                <button:StandardDropdown
                                     SelectedItem="{Binding SelectedTheme}"
                                     ItemsSource="{x:Static viewModels:SettingsPageViewModel.ThemeOptions}"
                                     DisplayMemberPath="Name"
@@ -567,11 +568,11 @@
                             </GroupBox>
 
                             <GroupBox Header="Accent Color">
-                                <ComboBox
+                                <button:StandardDropdown
                                     SelectedItem="{Binding SelectedAccentColor}"
                                     ItemsSource="{x:Static viewModels:SettingsPageViewModel.AccentColors}"
                                     MinWidth="150">
-                                    <ComboBox.ItemTemplate>
+                                    <button:StandardDropdown.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
                                                 <Border Width="16"
@@ -583,12 +584,12 @@
                                                            VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
+                                    </button:StandardDropdown.ItemTemplate>
+                                </button:StandardDropdown>
                             </GroupBox>
 
                             <GroupBox Header="Transition Style">
-                                <ComboBox
+                                <button:StandardDropdown
                                     SelectedItem="{Binding Transition}"
                                     SelectedIndex="{Binding Default.SelectedTransition, Source={StaticResource Settings}}"
                                     ItemsSource="{x:Static transitions:TransitionCollection.Transitions}"
