@@ -339,7 +339,7 @@ public class PlaybackEngineService : PropertyChangedBase, IHandle<MidiFile>, IHa
             var sourceNote = (int)noteEvent.NoteNumber;
             var isNoteOn = noteEvent.EventType == MidiEventType.NoteOn && noteEvent.Velocity > 0;
             var noteForKeyboard = ApplyNoteSettings(instrument, noteEvent.NoteNumber);
-            var noteForListen = ApplyListenModeSettings(sourceNote);
+            var noteForListen = noteForKeyboard; // Listen mode plays the same note as keyboard output
             var hasMappedKey = KeyboardPlayer.TryGetKey(layout, instrument, noteForKeyboard, out var mappedKey);
             var transposeMode = Settings.TransposeNotes && SongSettings.Transpose is not null
                 ? SongSettings.Transpose.Value.Key
@@ -433,21 +433,23 @@ public class PlaybackEngineService : PropertyChangedBase, IHandle<MidiFile>, IHa
 
     private int ApplyNoteSettings(string instrumentId, int noteId)
     {
-        noteId += SongSettings.GetEffectiveKeyOffset(Queue.OpenedFile?.Song);
+        var instrumentKeyCount = Keyboard.GetNotes(instrumentId).Count;
+        var threshold = Settings.AutoCorrectThreshold;
+
+        if (instrumentKeyCount <= threshold)
+        {
+            // Auto-correct: apply full base key + relative offset
+            noteId += SongSettings.GetEffectiveKeyOffset(Queue.OpenedFile?.Song);
+        }
+        else
+        {
+            // Wide-range instrument: only apply the relative user offset (no base key shift)
+            noteId += SongSettings.KeyOffset;
+        }
+
         return Settings.TransposeNotes && SongSettings.Transpose is not null
             ? KeyboardPlayer.TransposeNote(instrumentId, ref noteId, SongSettings.Transpose.Value.Key)
             : noteId;
-    }
-
-    private int ApplyListenModeSettings(int noteId)
-    {
-        // Listen mode treats BaseKey as metadata root and only applies the
-        // user-selected relative song offset (+/- around 0).
-        var relativeOffset = Queue.OpenedFile?.Song.BaseKey is not null
-            ? SongSettings.KeyOffset
-            : 0;
-
-        return Math.Clamp(noteId + relativeOffset, 0, 127);
     }
 
     private static bool ShouldSkipListenNote(string instrumentId, int note, Transpose? transposeMode)

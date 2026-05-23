@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -323,6 +323,61 @@ public class SettingsPageViewModel : Screen
     public int KeyboardPressDelayMs { get; set; } = Settings.KeyboardPressDelayMs;
 
     public bool EnableKeyUp { get; set; } = Settings.EnableKeyUp;
+
+    #region AutoCorrectThreshold
+
+    /// <summary>
+    /// Sorted distinct key counts across all registered instruments.
+    /// Drives the slider tick positions.
+    /// </summary>
+    public static int[] AutoCorrectThresholdTicks { get; } = Core.Keyboard.GetDistinctInstrumentKeyCounts();
+
+    /// <summary>
+    /// Maximum slider index (0-based).
+    /// </summary>
+    public int AutoCorrectThresholdMaxIndex => AutoCorrectThresholdTicks.Length - 1;
+
+    /// <summary>
+    /// Pipe-delimited labels for the slider thumb tooltip (one per tick).
+    /// </summary>
+    public string AutoCorrectThresholdToolTipOptions { get; } =
+        string.Join("|", AutoCorrectThresholdTicks.Select(k => $"{k} keys"));
+
+    private int _autoCorrectThresholdIndex = Array.IndexOf(
+        AutoCorrectThresholdTicks,
+        AutoCorrectThresholdTicks.OrderBy(t => Math.Abs(t - Settings.AutoCorrectThreshold)).First());
+
+    /// <summary>
+    /// Current slider index. Converts to/from the actual key count for persistence.
+    /// </summary>
+    public int AutoCorrectThresholdIndex
+    {
+        get => _autoCorrectThresholdIndex;
+        set
+        {
+            var clamped = Math.Clamp(value, 0, AutoCorrectThresholdMaxIndex);
+            if (SetAndNotify(ref _autoCorrectThresholdIndex, clamped))
+            {
+                NotifyOfPropertyChange(nameof(AutoCorrectThresholdDescription));
+            }
+        }
+    }
+
+    /// <summary>
+    /// The actual key count value represented by the current slider position.
+    /// </summary>
+    public int AutoCorrectThresholdValue =>
+        AutoCorrectThresholdIndex >= 0 && AutoCorrectThresholdIndex < AutoCorrectThresholdTicks.Length
+            ? AutoCorrectThresholdTicks[AutoCorrectThresholdIndex]
+            : 22;
+
+    /// <summary>
+    /// Human-readable description shown below the slider.
+    /// </summary>
+    public string AutoCorrectThresholdDescription =>
+        $"Auto-correct pitch for instruments with ≤ {AutoCorrectThresholdValue} keys.";
+
+    #endregion
 
     public bool AutoEnableListenMode
     {
@@ -1413,6 +1468,14 @@ public class SettingsPageViewModel : Screen
         Settings.EnableKeyUp = EnableKeyUp;
         Settings.Save();
         KeyboardPlayer.EnableKeyUp = EnableKeyUp;
+    }
+
+    [UsedImplicitly]
+    private void OnAutoCorrectThresholdIndexChanged()
+    {
+        Settings.AutoCorrectThreshold = AutoCorrectThresholdValue;
+        Settings.Save();
+        _events.Publish(this);
     }
 
     private static KeypressInputModeOption ResolveKeypressInputMode(bool useDirectInput, bool useWindowMessage)

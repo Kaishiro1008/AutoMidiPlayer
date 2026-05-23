@@ -148,25 +148,49 @@
                                        FontSize="12"
                                        Margin="0,-8,0,0"/>
 
-                            <ui:ToggleSwitch
-                                Content="Enable Key-up"
-                                IsChecked="{Binding EnableKeyUp}"
-                                Margin="0,8,0,0"
-                                ToolTip="When enabled, key-up is sent after key-down for press actions across all keypress methods."/>
-
-                            <controls:SimpleStackPanel Orientation="Horizontal"
-                                                       Spacing="8"
-                                                       Margin="0,8,0,0">
-                                <TextBlock Text="Key Press Delay (ms)"
-                                           VerticalAlignment="Center"/>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:ToggleSwitch
+                                    Grid.Column="0"
+                                    Content="Enable Key-up"
+                                    IsChecked="{Binding EnableKeyUp}"
+                                    ToolTip="When enabled, key-up is sent after key-down for press actions across all keypress methods."/>
+                                <TextBlock Grid.Column="1"
+                                           Text="Delay (ms)"
+                                           VerticalAlignment="Center"
+                                           Margin="16,0,8,0"/>
                                 <ui:NumberBox
+                                    Grid.Column="2"
                                     Value="{Binding KeyboardPressDelayMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     Minimum="0"
                                     Maximum="1000"
                                     MaxDecimalPlaces="0"
                                     MinWidth="100"
                                     ToolTip="Delay between key-down and key-up for press actions."/>
-                            </controls:SimpleStackPanel>
+                            </Grid>
+
+                            <GroupBox Header="Auto Correct Threshold"
+                                      Margin="0,8,0,0">
+                                <controls:SimpleStackPanel>
+                                    <controls:Slider
+                                        Minimum="0"
+                                        Maximum="{Binding AutoCorrectThresholdMaxIndex}"
+                                        TickFrequency="1"
+                                        IsSnapToTickEnabled="True"
+                                        TickPlacement="BottomRight"
+                                        Value="{Binding AutoCorrectThresholdIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        ThumbToolTipOptions="{Binding AutoCorrectThresholdToolTipOptions}"/>
+                                    <TextBlock Text="{Binding AutoCorrectThresholdDescription}"
+                                               TextWrapping="Wrap"
+                                               Opacity="0.6"
+                                               FontSize="12"
+                                               Margin="0,-4,0,0"/>
+                                </controls:SimpleStackPanel>
+                            </GroupBox>
                         </controls:SimpleStackPanel>
                     </controls:Section>
 

@@ -475,5 +475,19 @@ public static class Keyboard
         return config.Notes ?? Array.Empty<int>();
     }
 
+    /// <summary>
+    /// Returns the sorted distinct note counts across all registered instruments.
+    /// Used by the AutoCorrectThreshold slider to generate tick marks.
+    /// </summary>
+    public static int[] GetDistinctInstrumentKeyCounts()
+    {
+        return _instrumentRegistry.Values
+            .Select(c => c.Notes?.Count ?? 0)
+            .Where(count => count > 0)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToArray();
+    }
+
     #endregion
 }

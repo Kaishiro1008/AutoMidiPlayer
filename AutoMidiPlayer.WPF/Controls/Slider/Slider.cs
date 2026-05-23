@@ -149,25 +149,16 @@ public partial class Slider : UserControl
         if (control._suppressValuePropagation)
             return;
 
+        // External value change (e.g. ViewModel binding) — animate the visual to match
         var targetValue = (int)e.NewValue;
         control.AnimateTo(targetValue);
     }
 
     private static void OnAnimatedValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
+        // AnimatedValue is purely visual — only update the tooltip, never touch Value
         var control = (Slider)d;
         control.UpdateThumbToolTip();
-
-        if (control._suppressValuePropagation)
-            return;
-
-        var rounded = (int)Math.Round((double)e.NewValue);
-        if (control.Value != rounded)
-        {
-            control._suppressValuePropagation = true;
-            control.Value = rounded;
-            control._suppressValuePropagation = false;
-        }
     }
 
     private static void OnThumbToolTipOptionsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -182,9 +173,7 @@ public partial class Slider : UserControl
 
         if (!AnimateThumbTransitions || _suppressAnimation || !IsLoaded)
         {
-            _suppressValuePropagation = true;
             AnimatedValue = clamped;
-            _suppressValuePropagation = false;
             _lastAnimationTarget = clamped;
             return;
         }
@@ -205,9 +194,7 @@ public partial class Slider : UserControl
 
         animation.Completed += (_, _) =>
         {
-            _suppressValuePropagation = true;
             AnimatedValue = clamped;
-            _suppressValuePropagation = false;
             BeginAnimation(AnimatedValueProperty, null);
             UpdateThumbToolTip();
         };
@@ -330,21 +317,24 @@ public partial class Slider : UserControl
 
     private void CommitValue(int target, bool animate)
     {
-        if (animate)
-        {
-            AnimateTo(target);
-            return;
-        }
-
+        // Always set Value immediately — this is the "data" side
         _suppressValuePropagation = true;
         Value = target;
         _suppressValuePropagation = false;
 
-        _suppressAnimation = true;
-        AnimatedValue = target;
-        _suppressAnimation = false;
-
-        UpdateThumbToolTip();
+        // Then handle the visual side
+        if (animate)
+        {
+            AnimateTo(target);
+        }
+        else
+        {
+            _suppressAnimation = true;
+            AnimatedValue = target;
+            _suppressAnimation = false;
+            _lastAnimationTarget = target;
+            UpdateThumbToolTip();
+        }
     }
 
     private void ResetTrackInteraction()
