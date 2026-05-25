@@ -160,12 +160,12 @@
                                     <TextBlock Text="Delay (ms)"
                                                VerticalAlignment="Center"
                                                Margin="0,0,8,0"/>
-                                    <ui:NumberBox
+                                    <controls:Numberbox
                                         Value="{Binding KeyboardPressDelayMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         Minimum="0"
                                         Maximum="1000"
                                         MaxDecimalPlaces="0"
-                                        MinWidth="100"
+                                        FixedWidth="True"
                                         ToolTip="Delay between key-down and key-up for press actions."/>
                                 </StackPanel>
                             </WrapPanel>
@@ -633,12 +633,12 @@
                                                                Margin="0,0,0,8">
                                         <TextBlock Text="Tolerance (ms)"
                                                    FontWeight="SemiBold"/>
-                                        <ui:NumberBox Value="{Binding DefaultSongMergeMilliseconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                      Minimum="1"
-                                                      Maximum="1000"
-                                                      MaxDecimalPlaces="0"
-                                                      MinWidth="100"
-                                                      IsEnabled="{Binding CanEditDefaultSongMergeMilliseconds}"/>
+                                        <controls:Numberbox Value="{Binding DefaultSongMergeMilliseconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                              Minimum="1"
+                                                              Maximum="1000"
+                                                              MaxDecimalPlaces="0"
+                                                              FixedWidth="True"
+                                                              IsEnabled="{Binding CanEditDefaultSongMergeMilliseconds}"/>
                                     </controls:SimpleStackPanel>
                                 </WrapPanel>
                             </GroupBox>

@@ -77,22 +77,22 @@
                         </controls:SimpleStackPanel.Resources>
                         <controls:SimpleStackPanel Orientation="Horizontal"
                                                    Spacing="8">
-                            <ui:NumberBox PlaceholderText="hour"
-                                          Value="{Binding ScheduledHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Minimum="0"
-                                          Maximum="23"
-                                          MaxDecimalPlaces="0"
-                                          MinWidth="70"
-                                          IsEnabled="{Binding CanChangeTime}"/>
+                            <controls:Numberbox ToolTip="hour"
+                                                 Value="{Binding ScheduledHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Minimum="0"
+                                                 Maximum="23"
+                                                 MaxDecimalPlaces="0"
+                                                 FixedWidth="True"
+                                                 IsEnabled="{Binding CanChangeTime}"/>
                             <TextBlock Text=":"
                                        VerticalAlignment="Center"/>
-                            <ui:NumberBox PlaceholderText="minute"
-                                          Value="{Binding ScheduledMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          Minimum="0"
-                                          Maximum="59"
-                                          MaxDecimalPlaces="0"
-                                          MinWidth="80"
-                                          IsEnabled="{Binding CanChangeTime}"/>
+                            <controls:Numberbox ToolTip="minute"
+                                                 Value="{Binding ScheduledMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Minimum="0"
+                                                 Maximum="59"
+                                                 MaxDecimalPlaces="0"
+                                                 FixedWidth="True"
+                                                 IsEnabled="{Binding CanChangeTime}"/>
                             <Button Command="{s:Action SetTimeToNow}"
                                     IsEnabled="{Binding CanChangeTime}">Now</Button>
                             <Button Command="{s:Action StartStopTimer}"
@@ -123,11 +123,10 @@
                             <ui:ToggleSwitch
                                 Content="Merge nearby notes"
                                 IsChecked="{Binding MergeNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                            <ui:NumberBox
-                                PlaceholderText="Tolerance (ms)"
+                            <controls:Numberbox
+                                ToolTip="Tolerance (ms)"
                                 IsEnabled="{Binding MergeNotes}"
-                                Value="{Binding MergeMilliseconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                MinWidth="100"/>
+                                Value="{Binding MergeMilliseconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </controls:SimpleStackPanel>
 
                         <ui:ToggleSwitch
