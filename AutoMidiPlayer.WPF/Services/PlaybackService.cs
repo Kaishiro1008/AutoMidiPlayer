@@ -793,6 +793,9 @@ public class PlaybackEngineService : PropertyChangedBase, IHandle<MidiFile>, IHa
         TrackView.UpdateTrackPlayableNotes();
         TrackView.NotifyNoteStatsChanged();
 
+        // Threshold change may affect whether auto-correction is active
+        SongSettings.UpdateAutoCorrectState();
+
         var wasPlaying = Playback?.IsRunning ?? false;
         SavedPosition = Controls.SongPosition;
 
