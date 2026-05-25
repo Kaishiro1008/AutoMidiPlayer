@@ -808,6 +808,10 @@ public class PlaybackEngineService : PropertyChangedBase, IHandle<MidiFile>, IHa
 
         TrackView.UpdateTrackPlayableNotes();
         TrackView.NotifyNoteStatsChanged();
+
+        // Instrument change may affect whether auto-correction is active
+        // (depends on instrument key count vs. threshold)
+        SongSettings.UpdateAutoCorrectState();
     }
 
     private static string FormatNoteName(int noteNumber)

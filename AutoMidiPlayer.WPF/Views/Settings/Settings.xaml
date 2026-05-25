@@ -139,6 +139,7 @@
                                     SelectedItem="{Binding SelectedKeypressInputMode}"
                                     ItemsSource="{x:Static viewModels:SettingsPageViewModel.KeypressInputModes}"
                                     DisplayMemberPath="Name"
+                                    HorizontalAlignment="Left"
                                     MinWidth="220"/>
                             </GroupBox>
 
@@ -148,30 +149,26 @@
                                        FontSize="12"
                                        Margin="0,-8,0,0"/>
 
-                            <Grid Margin="0,8,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+                            <WrapPanel Margin="0,8,0,0">
                                 <ui:ToggleSwitch
-                                    Grid.Column="0"
                                     Content="Enable Key-up"
                                     IsChecked="{Binding EnableKeyUp}"
+                                    Margin="0,0,32,8"
                                     ToolTip="When enabled, key-up is sent after key-down for press actions across all keypress methods."/>
-                                <TextBlock Grid.Column="1"
-                                           Text="Delay (ms)"
-                                           VerticalAlignment="Center"
-                                           Margin="16,0,8,0"/>
-                                <ui:NumberBox
-                                    Grid.Column="2"
-                                    Value="{Binding KeyboardPressDelayMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    Minimum="0"
-                                    Maximum="1000"
-                                    MaxDecimalPlaces="0"
-                                    MinWidth="100"
-                                    ToolTip="Delay between key-down and key-up for press actions."/>
-                            </Grid>
+                                <StackPanel Orientation="Horizontal"
+                                            Margin="0,0,0,8">
+                                    <TextBlock Text="Delay (ms)"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,8,0"/>
+                                    <ui:NumberBox
+                                        Value="{Binding KeyboardPressDelayMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        Minimum="0"
+                                        Maximum="1000"
+                                        MaxDecimalPlaces="0"
+                                        MinWidth="100"
+                                        ToolTip="Delay between key-down and key-up for press actions."/>
+                                </StackPanel>
+                            </WrapPanel>
 
                             <GroupBox Header="Auto Correct Threshold"
                                       Margin="0,8,0,0">
@@ -225,14 +222,17 @@
                                        FontSize="12"
                                        Margin="0,0,0,0"/>
 
-                            <GroupBox Header="Stop Playback on Mouse Click"
-                                      Visibility="{Binding HotkeysEnabled, Converter={x:Static s:BoolToVisibilityConverter.Instance}}">
+                            <WrapPanel Visibility="{Binding HotkeysEnabled, Converter={x:Static s:BoolToVisibilityConverter.Instance}}">
+                                <TextBlock Text="Stop Playback on Mouse Click"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,12,8"/>
                                 <button:StandardDropdown
                                     SelectedItem="{Binding SelectedMouseStopClickOption}"
                                     ItemsSource="{x:Static viewModels:SettingsPageViewModel.MouseStopClickOptions}"
                                     DisplayMemberPath="Name"
-                                    HorizontalAlignment="Left"/>
-                            </GroupBox>
+                                    HorizontalAlignment="Left"
+                                    Margin="0,0,0,8"/>
+                            </WrapPanel>
 
                             <controls:SimpleStackPanel Spacing="8"
                                                        Grid.IsSharedSizeScope="True"
@@ -542,77 +542,76 @@
                         <controls:SimpleStackPanel>
                             <GroupBox Header="Key Defaults"
                                       Margin="0,0,0,0">
-                                <Grid Margin="0,0,0,4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="12"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                                <controls:SimpleStackPanel>
+                                    <WrapPanel Margin="0,0,0,0">
+                                        <controls:SimpleStackPanel Spacing="4"
+                                                                   Margin="0,0,24,8">
+                                            <TextBlock Text="Base Key Offset"
+                                                       FontWeight="SemiBold"/>
+                                            <button:StandardDropdown SelectedItem="{Binding SelectedNewSongBaseKeyOption}"
+                                                                     ItemsSource="{x:Static viewModels:SettingsPageViewModel.NewSongBaseKeyOptions}"
+                                                                     ItemTemplate="{StaticResource OffsetNoteTemplate}"
+                                                                     HorizontalAlignment="Left"/>
+                                        </controls:SimpleStackPanel>
 
-                                    <controls:SimpleStackPanel Grid.Column="0"
-                                                               Spacing="4">
-                                        <TextBlock Text="Base Key Offset"
-                                                   FontWeight="SemiBold"/>
-                                        <button:StandardDropdown SelectedItem="{Binding SelectedNewSongBaseKeyOption}"
-                                                                 ItemsSource="{x:Static viewModels:SettingsPageViewModel.NewSongBaseKeyOptions}"
-                                                                 ItemTemplate="{StaticResource OffsetNoteTemplate}"
-                                                                 HorizontalAlignment="Left"/>
-                                        <ui:ToggleSwitch Content="Auto Detect Base Key"
-                                                         IsChecked="{Binding AutoDetectBaseKey}"
-                                                         Margin="0,4,0,0"
-                                                         ToolTip="When enabled, newly imported songs try to auto-detect the song base key. If detection fails, the key defaults above are used."/>
-                                    </controls:SimpleStackPanel>
-
-                                    <controls:SimpleStackPanel Grid.Column="2"
-                                                               Spacing="4">
-                                        <TextBlock Text="Key Offset"
-                                                   FontWeight="SemiBold"/>
-                                        <button:StandardDropdown SelectedItem="{Binding SelectedNewSongKeyOption}"
-                                                                 ItemsSource="{Binding NewSongKeyOptions}"
-                                                                 ItemTemplate="{StaticResource OffsetNoteTemplate}"
-                                                                 HorizontalAlignment="Left"/>
-                                    </controls:SimpleStackPanel>
-                                </Grid>
+                                        <controls:SimpleStackPanel Spacing="4"
+                                                                   Margin="0,0,0,8">
+                                            <TextBlock Text="Key Offset"
+                                                       FontWeight="SemiBold"/>
+                                            <button:StandardDropdown SelectedItem="{Binding SelectedNewSongKeyOption}"
+                                                                     ItemsSource="{Binding NewSongKeyOptions}"
+                                                                     ItemTemplate="{StaticResource OffsetNoteTemplate}"
+                                                                     HorizontalAlignment="Left"/>
+                                        </controls:SimpleStackPanel>
+                                    </WrapPanel>
+                                    <ui:ToggleSwitch Content="Auto Detect Base Key"
+                                                     IsChecked="{Binding AutoDetectBaseKey}"
+                                                     Margin="0,0,0,0"
+                                                     ToolTip="When enabled, newly imported songs try to auto-detect the song base key. If detection fails, the key defaults above are used."/>
+                                </controls:SimpleStackPanel>
                             </GroupBox>
 
-                            <Grid Margin="0,8,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <GroupBox Grid.Column="0"
-                                          Header="Transpose">
+                            <WrapPanel Margin="0,8,0,0">
+                                <GroupBox Header="Transpose"
+                                          Margin="0,0,18,8">
                                     <button:StandardDropdown SelectedItem="{Binding SelectedNewSongTransposeOption}"
                                                              ItemsSource="{x:Static viewModels:SettingsPageViewModel.NewSongTransposeOptions}"
                                                              DisplayMemberPath="Value"
                                                              HorizontalAlignment="Left"/>
                                 </GroupBox>
 
-                                <GroupBox Grid.Column="2"
-                                          Header="Hold Notes">
+                                <GroupBox Header="Hold Notes"
+                                          Margin="0,0,0,8">
                                     <ui:ToggleSwitch Content="Enable"
                                                      IsChecked="{Binding DefaultSongHoldNotes}"
                                                      Margin="0,4,0,0"/>
                                 </GroupBox>
-                            </Grid>
+                            </WrapPanel>
 
                             <GroupBox Header="Merge Notes"
                                       Margin="0,8,0,0">
-                                <controls:SimpleStackPanel Orientation="Horizontal"
-                                                           Spacing="8">
-                                    <ui:ToggleSwitch Content="Merge Notes"
-                                                     IsChecked="{Binding DefaultSongMergeNotes}"/>
-                                    <TextBlock Text="Tolerance (ms)"
-                                               VerticalAlignment="Center"/>
-                                    <ui:NumberBox Value="{Binding DefaultSongMergeMilliseconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                  Minimum="1"
-                                                  Maximum="1000"
-                                                  MaxDecimalPlaces="0"
-                                                  MinWidth="100"
-                                                  IsEnabled="{Binding CanEditDefaultSongMergeMilliseconds}"/>
-                                </controls:SimpleStackPanel>
+                                <WrapPanel>
+                                    <controls:SimpleStackPanel Spacing="4"
+                                                               Margin="0,0,24,8">
+                                        <TextBlock Text="Enable"
+                                                   FontWeight="SemiBold"/>
+                                        <Border Height="32">
+                                            <ui:ToggleSwitch IsChecked="{Binding DefaultSongMergeNotes}"
+                                                             VerticalAlignment="Center"/>
+                                        </Border>
+                                    </controls:SimpleStackPanel>
+                                    <controls:SimpleStackPanel Spacing="4"
+                                                               Margin="0,0,0,8">
+                                        <TextBlock Text="Tolerance (ms)"
+                                                   FontWeight="SemiBold"/>
+                                        <ui:NumberBox Value="{Binding DefaultSongMergeMilliseconds, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                      Minimum="1"
+                                                      Maximum="1000"
+                                                      MaxDecimalPlaces="0"
+                                                      MinWidth="100"
+                                                      IsEnabled="{Binding CanEditDefaultSongMergeMilliseconds}"/>
+                                    </controls:SimpleStackPanel>
+                                </WrapPanel>
                             </GroupBox>
                         </controls:SimpleStackPanel>
                     </controls:Section>
@@ -684,22 +683,17 @@
                     <controls:Section Title="Style"
                                       Margin="0,16,0,0">
                         <controls:SimpleStackPanel>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <GroupBox Grid.Column="0"
-                                          Header="Theme Mode">
+                            <WrapPanel>
+                                <GroupBox Header="Theme Mode"
+                                          Margin="0,0,18,0">
                                     <button:StandardDropdown
                                         SelectedItem="{Binding SelectedTheme}"
                                         ItemsSource="{x:Static viewModels:SettingsPageViewModel.ThemeOptions}"
                                         DisplayMemberPath="Name"
                                         HorizontalAlignment="Left"/>
                                 </GroupBox>
-                                <GroupBox Grid.Column="2"
-                                          Header="Accent Color">
+                                <GroupBox Header="Accent Color"
+                                          Margin="0,0,0,0">
                                     <button:StandardDropdown
                                         SelectedItem="{Binding SelectedAccentColor}"
                                         ItemsSource="{x:Static viewModels:SettingsPageViewModel.AccentColors}"
@@ -719,28 +713,25 @@
                                         </button:StandardDropdown.ItemTemplate>
                                     </button:StandardDropdown>
                                 </GroupBox>
-                            </Grid>
+                            </WrapPanel>
 
-                            <Grid Margin="0,8,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <GroupBox Grid.Column="0"
-                                          Header="Transition Style">
+                            <WrapPanel>
+                                <GroupBox Header="Transition Style"
+                                          Margin="0,0,18,0">
                                     <button:StandardDropdown
                                         SelectedItem="{Binding Transition}"
                                         SelectedIndex="{Binding Default.SelectedTransition, Source={StaticResource Settings}}"
                                         ItemsSource="{x:Static transitions:TransitionCollection.Transitions}"
                                         HorizontalAlignment="Left"/>
                                 </GroupBox>
-                                <ui:ToggleSwitch Grid.Column="2"
-                                                 Content="Enable smooth scrolling"
-                                                 IsChecked="{Binding SmoothScrollingEnabled}"
-                                                 Margin="0,4,0,0"
-                                                 ToolTip="Smooths wheel scrolling in lists and panes. Turn off for default native scrolling."/>
-                            </Grid>
+                                <GroupBox Header="Smooth Scrolling"
+                                          Margin="0,0,0,0">
+                                    <ui:ToggleSwitch Content="Enable"
+                                                     IsChecked="{Binding SmoothScrollingEnabled}"
+                                                     Margin="0,4,0,0"
+                                                     ToolTip="Smooths wheel scrolling in lists and panes. Turn off for default native scrolling."/>
+                                </GroupBox>
+                            </WrapPanel>
                         </controls:SimpleStackPanel>
                     </controls:Section>
 
@@ -862,8 +853,8 @@
                     <TextBlock TextWrapping="Wrap"
                                FontSize="11"
                                Opacity="0.7">
-                    All rights reserved by © miHoYo Co., Ltd., © XD Inc., © thatgamecompany, Inc., and © Roblox Corporation.
-                    Not affiliated with miHoYo, XD, thatgamecompany, Roblox or © Hotta Studio.
+                    All rights reserved by © miHoYo Co., Ltd., © XD Inc., © thatgamecompany, Inc., © Roblox Corporation, and © Hotta Studio, a Perfect World company.
+                    Not affiliated with miHoYo, XD, thatgamecompany, Roblox, or Hotta Studio.
                     </TextBlock>
                 </controls:SimpleStackPanel>
             </controls:Section>

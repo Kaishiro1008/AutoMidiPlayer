@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMidiPlayer.Data;
 using AutoMidiPlayer.Data.Entities;
+using AutoMidiPlayer.Data.Properties;
+using AutoMidiPlayer.WPF.Core;
 using AutoMidiPlayer.WPF.Dialogs;
 using AutoMidiPlayer.WPF.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +24,7 @@ namespace AutoMidiPlayer.WPF.Services;
 /// </summary>
 public class SongService(IContainer ioc) : PropertyChangedBase
 {
+    private static readonly Settings Settings = Settings.Default;
     private readonly IContainer _ioc = ioc;
     private readonly IEventAggregator _events = ioc.Get<IEventAggregator>();
     private MainWindowViewModel? _main;
@@ -31,6 +34,7 @@ public class SongService(IContainer ioc) : PropertyChangedBase
     private MusicConstants.KeyOption? _selectedKeyOption;
     private MusicConstants.SpeedOption? _selectedSpeedOption;
     private bool _suppressSongPersistenceAndEvents;
+    private bool _isAutoCorrectActive;
 
     #region Static Data
 
@@ -73,6 +77,7 @@ public class SongService(IContainer ioc) : PropertyChangedBase
                 NotifyOfPropertyChange(nameof(SelectedKeyOption));
                 NotifyOfPropertyChange(nameof(KeyDisplayText));
                 NotifyOfPropertyChange(nameof(EffectiveKeyOffset));
+                NotifyOfPropertyChange(nameof(AutoCorrectDisplayText));
 
                 // Persist + notify for playback rebuild
                 SaveCurrentSongKey();
@@ -131,7 +136,8 @@ public class SongService(IContainer ioc) : PropertyChangedBase
 
     public int EffectiveKeyOffset => GetEffectiveKeyOffset();
 
-    public string KeyDisplayText => MusicConstants.GetNoteName(EffectiveKeyOffset);
+    public string KeyDisplayText => MusicConstants.GetNoteName(
+        IsAutoCorrectActive ? EffectiveKeyOffset : KeyOffset);
 
     public string SpeedDisplayText => $"{Speed:0.##}x";
 
@@ -144,6 +150,42 @@ public class SongService(IContainer ioc) : PropertyChangedBase
     public Transpose TransposeMode => Transpose?.Key ?? Ignore;
 
     public bool IsTransposeActive => TransposeMode != Ignore;
+
+    /// <summary>
+    /// True when the current instrument's key count is at or below the AutoCorrectThreshold
+    /// AND the song has a non-zero detected BaseKey, meaning the effective key offset
+    /// differs from the raw user-selected offset.
+    /// </summary>
+    public bool IsAutoCorrectActive
+    {
+        get => _isAutoCorrectActive;
+        private set => SetAndNotify(ref _isAutoCorrectActive, value);
+    }
+
+    /// <summary>
+    /// Display text showing the auto-correction, e.g. "C3 → D3".
+    /// Shows the note at offset 0 without base key vs. with base key applied.
+    /// </summary>
+    public string AutoCorrectDisplayText
+    {
+        get
+        {
+            var baseKey = CurrentFile?.Song.BaseKey;
+            if (baseKey is null or 0)
+                return string.Empty;
+
+            var rawNote = MusicConstants.GetNoteName(KeyOffset);
+            var effectiveNote = MusicConstants.GetNoteName(
+                MusicConstants.GetEffectiveKeyOffset(KeyOffset, baseKey));
+            return $"{rawNote} → {effectiveNote}";
+        }
+    }
+
+    /// <summary>
+    /// Tooltip explaining that smart transpose auto-correction is active.
+    /// </summary>
+    public string AutoCorrectTooltip =>
+        "Smart transpose is auto-correcting the key based on the detected song key";
 
     #endregion
 
@@ -188,6 +230,7 @@ public class SongService(IContainer ioc) : PropertyChangedBase
         Transpose = file.Song.Transpose is not null ? transpose : null;
 
         NotifyOfPropertyChange(nameof(TransposeDisplayText));
+        UpdateAutoCorrectState();
     }
 
     /// <summary>
@@ -199,6 +242,7 @@ public class SongService(IContainer ioc) : PropertyChangedBase
         UpdateKeyOptionsForCurrentSong();
         Transpose = null;
         NotifyOfPropertyChange(nameof(TransposeDisplayText));
+        UpdateAutoCorrectState();
     }
 
     /// <summary>
@@ -236,6 +280,7 @@ public class SongService(IContainer ioc) : PropertyChangedBase
         NotifyOfPropertyChange(nameof(EffectiveKeyOffset));
         NotifyOfPropertyChange(nameof(IsSpeedActive));
         NotifyOfPropertyChange(nameof(IsTransposeActive));
+        UpdateAutoCorrectState();
     }
 
     /// <summary>
@@ -252,7 +297,13 @@ public class SongService(IContainer ioc) : PropertyChangedBase
     private void UpdateKeyOptionsForCurrentSong()
     {
         var baseKeyOffset = CurrentFile?.Song.BaseKey;
-        KeyOptions = MusicConstants.GenerateKeyOptions(baseKeyOffset);
+
+        // When auto-correct is active, generate key options that show the effective
+        // (corrected) note names. When inactive, show raw offset notes (no base key).
+        var isAutoCorrect = IsAutoCorrectActiveForCurrentInstrument();
+        KeyOptions = isAutoCorrect
+            ? MusicConstants.GenerateKeyOptions(baseKeyOffset)
+            : MusicConstants.GenerateKeyOptions();
 
         _selectedKeyOption = KeyOptions.FirstOrDefault(k => k.Value == _keyOffset)
                              ?? KeyOptions.FirstOrDefault();
@@ -261,6 +312,46 @@ public class SongService(IContainer ioc) : PropertyChangedBase
         NotifyOfPropertyChange(nameof(SelectedKeyOption));
         NotifyOfPropertyChange(nameof(KeyDisplayText));
         NotifyOfPropertyChange(nameof(EffectiveKeyOffset));
+    }
+
+    /// <summary>
+    /// Update the auto-correct indicator state. Called when song, instrument,
+    /// or key settings change.
+    /// </summary>
+    public void UpdateAutoCorrectState()
+    {
+        var wasActive = _isAutoCorrectActive;
+        IsAutoCorrectActive = IsAutoCorrectActiveForCurrentInstrument();
+        NotifyOfPropertyChange(nameof(AutoCorrectDisplayText));
+        NotifyOfPropertyChange(nameof(KeyDisplayText));
+
+        // If auto-correct state changed, regenerate key options so dropdown items
+        // show the correct note names (effective vs. raw).
+        if (wasActive != _isAutoCorrectActive)
+            UpdateKeyOptionsForCurrentSong();
+    }
+
+    /// <summary>
+    /// Checks whether auto-correction is active for the current instrument and song.
+    /// Auto-correction applies when the instrument key count is at or below the
+    /// AutoCorrectThreshold and the song has a non-zero detected base key.
+    /// </summary>
+    private bool IsAutoCorrectActiveForCurrentInstrument()
+    {
+        // Auto-correction only applies when Smart transpose is selected
+        if (TransposeMode != Smart)
+            return false;
+
+        if (CurrentFile?.Song.BaseKey is not { } baseKey || baseKey == 0)
+            return false;
+
+        var instrumentId = _main?.InstrumentView?.SelectedInstrument.Key;
+        if (string.IsNullOrEmpty(instrumentId))
+            return false;
+
+        var keyCount = Keyboard.GetNotes(instrumentId).Count;
+        var threshold = Settings.AutoCorrectThreshold;
+        return keyCount <= threshold;
     }
 
     #endregion
@@ -290,6 +381,7 @@ public class SongService(IContainer ioc) : PropertyChangedBase
         NotifyOfPropertyChange(nameof(TransposeDisplayText));
         NotifyOfPropertyChange(nameof(TransposeMode));
         NotifyOfPropertyChange(nameof(IsTransposeActive));
+        UpdateAutoCorrectState();
 
         if (_suppressSongPersistenceAndEvents) return;
         if (CurrentFile is null) return;

@@ -24,7 +24,7 @@
     Title="{Binding Title}"
     Height="650"
     Width="1000"
-    MinWidth="800"
+    MinWidth="820"
     MinHeight="550"
     Background="{ui:ThemeResource ApplicationBackgroundBrush}"
     ExtendsContentIntoTitleBar="True"
@@ -1202,35 +1202,53 @@
                           Margin="12,0,0,0"
                           VerticalAlignment="Center"
                           HorizontalAlignment="Stretch"
-                          ClipToBounds="True">
+                          ClipToBounds="False">
                         <controls:SimpleStackPanel Orientation="Horizontal"
                                                    HorizontalAlignment="Right"
                                                    VerticalAlignment="Center"
                                                    Spacing="8">
 
                             <!-- Key -->
-                            <button:PlayerControlDropdown ToolTip="Key offset for transposition"
-                                                          ItemsSource="{Binding SongSettings.KeyOptions}"
-                                                          SelectedItem="{Binding SongSettings.SelectedKeyOption, Mode=TwoWay}"
-                                                          ItemTemplate="{StaticResource SelectorKeyItemTemplate}"
-                                                          PopupMaxWidth="220">
-                                <button:PlayerControlDropdown.ButtonContent>
-                                    <StackPanel Orientation="Horizontal"
-                                                VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding SongSettings.KeyDisplayText}"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   MaxWidth="42"
-                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
-                                        <ui:SymbolIcon Symbol="MusicNote120"
-                                                       Filled="True"
-                                                       FontSize="14"
-                                                       Margin="0,0,4,0"
+                            <Grid ClipToBounds="False">
+                                <button:PlayerControlDropdown ToolTip="Key offset for transposition"
+                                                              ItemsSource="{Binding SongSettings.KeyOptions}"
+                                                              SelectedItem="{Binding SongSettings.SelectedKeyOption, Mode=TwoWay}"
+                                                              ItemTemplate="{StaticResource SelectorKeyItemTemplate}"
+                                                              PopupMaxWidth="220">
+                                    <button:PlayerControlDropdown.ButtonContent>
+                                        <StackPanel Orientation="Horizontal"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding SongSettings.KeyDisplayText}"
                                                        VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MaxWidth="42"
                                                        Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
-                                    </StackPanel>
-                                </button:PlayerControlDropdown.ButtonContent>
-                            </button:PlayerControlDropdown>
+                                            <ui:SymbolIcon Symbol="MusicNote120"
+                                                           Filled="True"
+                                                           FontSize="14"
+                                                           Margin="0,0,4,0"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                                        </StackPanel>
+                                    </button:PlayerControlDropdown.ButtonContent>
+                                </button:PlayerControlDropdown>
+
+                                <!-- Auto-correction indicator: floats below dropdown without affecting layout -->
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Bottom"
+                                            Margin="0,0,0,-16"
+                                            ToolTip="{Binding SongSettings.AutoCorrectTooltip}"
+                                            Visibility="{Binding SongSettings.IsAutoCorrectActive, Converter={x:Static s:BoolToVisibilityConverter.Instance}}">
+                                    <Ellipse Width="5" Height="5"
+                                             Fill="#4CAF50"
+                                             VerticalAlignment="Center"
+                                             Margin="0,0,4,0"/>
+                                    <TextBlock Text="{Binding SongSettings.AutoCorrectDisplayText}"
+                                               FontSize="10"
+                                               Foreground="#4CAF50"/>
+                                </StackPanel>
+                            </Grid>
 
                             <!-- Speed -->
                             <button:PlayerControlDropdown ToolTip="Playback speed"

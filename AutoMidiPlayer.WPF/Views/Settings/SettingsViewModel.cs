@@ -371,7 +371,7 @@ public class SettingsPageViewModel : Screen
     /// Human-readable description shown below the slider.
     /// </summary>
     public string AutoCorrectThresholdDescription =>
-        $"Auto-correct pitch for instruments with ≤ {AutoCorrectThresholdValue} keys.";
+        $"Auto-correct pitch for instruments with ≤ {AutoCorrectThresholdValue} keys when Smart Transpose is active.";
 
     #endregion
 
