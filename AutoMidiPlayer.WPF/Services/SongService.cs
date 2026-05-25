@@ -77,7 +77,8 @@ public class SongService(IContainer ioc) : PropertyChangedBase
                 NotifyOfPropertyChange(nameof(SelectedKeyOption));
                 NotifyOfPropertyChange(nameof(KeyDisplayText));
                 NotifyOfPropertyChange(nameof(EffectiveKeyOffset));
-                NotifyOfPropertyChange(nameof(AutoCorrectDisplayText));
+                NotifyOfPropertyChange(nameof(AutoCorrectRawNote));
+                NotifyOfPropertyChange(nameof(AutoCorrectEffectiveNote));
 
                 // Persist + notify for playback rebuild
                 SaveCurrentSongKey();
@@ -136,8 +137,7 @@ public class SongService(IContainer ioc) : PropertyChangedBase
 
     public int EffectiveKeyOffset => GetEffectiveKeyOffset();
 
-    public string KeyDisplayText => MusicConstants.GetNoteName(
-        IsAutoCorrectActive ? EffectiveKeyOffset : KeyOffset);
+    public string KeyDisplayText => MusicConstants.GetNoteName(KeyOffset);
 
     public string SpeedDisplayText => $"{Speed:0.##}x";
 
@@ -163,10 +163,9 @@ public class SongService(IContainer ioc) : PropertyChangedBase
     }
 
     /// <summary>
-    /// Display text showing the auto-correction, e.g. "C3 → D3".
-    /// Shows the note at offset 0 without base key vs. with base key applied.
+    /// Display text showing the auto-correction source note, e.g. "C3".
     /// </summary>
-    public string AutoCorrectDisplayText
+    public string AutoCorrectRawNote
     {
         get
         {
@@ -174,10 +173,23 @@ public class SongService(IContainer ioc) : PropertyChangedBase
             if (baseKey is null or 0)
                 return string.Empty;
 
-            var rawNote = MusicConstants.GetNoteName(KeyOffset);
-            var effectiveNote = MusicConstants.GetNoteName(
+            return MusicConstants.GetNoteName(KeyOffset);
+        }
+    }
+
+    /// <summary>
+    /// Display text showing the auto-correction target note, e.g. "D3".
+    /// </summary>
+    public string AutoCorrectEffectiveNote
+    {
+        get
+        {
+            var baseKey = CurrentFile?.Song.BaseKey;
+            if (baseKey is null or 0)
+                return string.Empty;
+
+            return MusicConstants.GetNoteName(
                 MusicConstants.GetEffectiveKeyOffset(KeyOffset, baseKey));
-            return $"{rawNote} → {effectiveNote}";
         }
     }
 
@@ -322,7 +334,8 @@ public class SongService(IContainer ioc) : PropertyChangedBase
     {
         var wasActive = _isAutoCorrectActive;
         IsAutoCorrectActive = IsAutoCorrectActiveForCurrentInstrument();
-        NotifyOfPropertyChange(nameof(AutoCorrectDisplayText));
+        NotifyOfPropertyChange(nameof(AutoCorrectRawNote));
+        NotifyOfPropertyChange(nameof(AutoCorrectEffectiveNote));
         NotifyOfPropertyChange(nameof(KeyDisplayText));
 
         // If auto-correct state changed, regenerate key options so dropdown items

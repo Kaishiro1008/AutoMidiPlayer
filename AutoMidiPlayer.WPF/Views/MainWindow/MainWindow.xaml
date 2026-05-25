@@ -1238,16 +1238,18 @@
                                 <StackPanel Orientation="Horizontal"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Bottom"
-                                            Margin="0,0,0,-16"
+                                            Margin="0,0,3,-12"
                                             ToolTip="{Binding SongSettings.AutoCorrectTooltip}"
                                             Visibility="{Binding SongSettings.IsAutoCorrectActive, Converter={x:Static s:BoolToVisibilityConverter.Instance}}">
-                                    <Ellipse Width="5" Height="5"
-                                             Fill="#4CAF50"
-                                             VerticalAlignment="Center"
-                                             Margin="0,0,4,0"/>
-                                    <TextBlock Text="{Binding SongSettings.AutoCorrectDisplayText}"
+                                    <TextBlock Text="{Binding SongSettings.AutoCorrectEffectiveNote}"
                                                FontSize="10"
+                                               VerticalAlignment="Center"
                                                Foreground="#4CAF50"/>
+                                    <ui:SymbolIcon Symbol="Checkmark12"
+                                                   FontSize="10"
+                                                   Foreground="#4CAF50"
+                                                   VerticalAlignment="Center"
+                                                   Margin="1,1,0,0"/>
                                 </StackPanel>
                             </Grid>
 
