@@ -654,7 +654,7 @@ public class MainWindowViewModel : Conductor<IScreen>, IHandle<MidiFile>
 
     private static async Task ShowResetSuccessDialogIfNeededAsync()
     {
-        await ResetCompleteDialog.ShowIfResetMarkerExistsAsync();
+        await AppStatusDialog.ShowIfStatusMarkerExistsAsync();
     }
     public void ShowGameInactiveToast(string gameName, bool listenModeEnabled)
     {

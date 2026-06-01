@@ -782,6 +782,14 @@ public class SettingsPageViewModel : Screen
         }
     }
 
+    public async Task ShowUpdateDialog()
+    {
+        if (LatestVersion == null || ProgramVersion >= LatestVersion.Version)
+            return;
+
+        await UpdateDialog.ShowAsync(LatestVersion);
+    }
+
     public async Task LocationMissing()
     {
         var missingGames = GameLocations
@@ -956,13 +964,15 @@ public class SettingsPageViewModel : Screen
         var currentProcessId = Environment.ProcessId;
         var escapedAppDataPath = AppPaths.AppDataDirectory.Replace("'", "''");
         var escapedExecutablePath = executablePath.Replace("'", "''");
-        var escapedResetMarkerPath = AppPaths.ResetCompletedMarkerPath.Replace("'", "''");
+        var escapedStatusFilePath = AppPaths.AppStatusFilePath.Replace("'", "''");
+
+        var resetStatusString = $"[{DateTime.Now:HH:mm:ss}] RESET";
 
         var resetCommand = $"Start-Sleep -Milliseconds 400; " +
                            $"Wait-Process -Id {currentProcessId}; " +
                            $"Remove-Item -LiteralPath '{escapedAppDataPath}' -Recurse -Force -ErrorAction SilentlyContinue; " +
                            $"New-Item -ItemType Directory -Path '{escapedAppDataPath}' -Force | Out-Null; " +
-                           $"New-Item -ItemType File -Path '{escapedResetMarkerPath}' -Force | Out-Null; " +
+                           $"Set-Content -Path '{escapedStatusFilePath}' -Value '{resetStatusString}' -Force; " +
                            $"Start-Process -FilePath '{escapedExecutablePath}'";
 
         var arguments = $"-NoProfile -WindowStyle Hidden -Command \"{resetCommand}\"";

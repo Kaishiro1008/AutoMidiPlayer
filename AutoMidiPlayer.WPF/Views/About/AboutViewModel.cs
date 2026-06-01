@@ -225,6 +225,13 @@ public class AboutViewModel : Screen
                 foreach (var element in doc.RootElement.EnumerateArray())
                 {
                     var login = element.GetProperty("login").GetString() ?? "Unknown";
+
+                    if (login.Equals("dependabot[bot]", StringComparison.OrdinalIgnoreCase) || 
+                        login.Equals("github-actions[bot]", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
                     var htmlUrl = element.GetProperty("html_url").GetString() ?? "";
                     var avatarUrl = element.GetProperty("avatar_url").GetString() ?? "";
 

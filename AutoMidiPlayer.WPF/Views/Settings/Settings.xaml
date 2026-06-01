@@ -678,17 +678,16 @@
                                            Visibility="{Binding NeedsUpdate, Converter={x:Static s:BoolToVisibilityConverter.Instance}}">
                                     <Run Text="{Binding LatestVersion.TagName}"/>
                                 </TextBlock>
-                                <controls:Hyperlink NavigateUri="{Binding LatestVersion.Url, TargetNullValue={x:Null}}"
-                                                    Padding="2"
-                                                    NormalOpacity="0.42"
-                                                    PointerOverOpacity="1"
-                                                    PreviewToolTip="{Binding LatestVersion.Url, StringFormat=Open update page: {0}}"
-                                                    Visibility="{Binding NeedsUpdate, Converter={x:Static s:BoolToVisibilityConverter.Instance}}">
+                                <Button Style="{DynamicResource IconButton}"
+                                        Command="{s:Action ShowUpdateDialog}"
+                                        Padding="2"
+                                        ToolTip="Install Update"
+                                        Visibility="{Binding NeedsUpdate, Converter={x:Static s:BoolToVisibilityConverter.Instance}}">
                                     <ui:SymbolIcon Symbol="ArrowCircleUp12"
                                                    FontSize="16"
                                                    Filled="True"
-                                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=controls:Hyperlink}}"/>
-                                </controls:Hyperlink>
+                                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                </Button>
                                 <controls:BusyActionButton Width="24"
                                                            Height="24"
                                                            IsBusy="{Binding IsCheckingUpdate}"
