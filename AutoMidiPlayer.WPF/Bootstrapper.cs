@@ -168,6 +168,8 @@ public class Bootstrapper : Bootstrapper<MainWindowViewModel>
         return columns;
     }
 
+// #pragma warning disable EF1003
+
     private static void RenameSongColumn(PlayerContext db, HashSet<string> existingSongColumns, string oldColumnName, string newColumnName)
     {
         if (!existingSongColumns.Contains(oldColumnName) || existingSongColumns.Contains(newColumnName))
@@ -217,6 +219,8 @@ public class Bootstrapper : Bootstrapper<MainWindowViewModel>
             // Best-effort migration: schema already updated or not applicable.
         }
     }
+
+#pragma warning restore EF1003
 
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {

@@ -72,8 +72,6 @@
                                   Margin="0,16,0,0">
                     <controls:SimpleStackPanel>
                         <controls:SimpleStackPanel.Resources>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource {x:Type Button}}"/>
                         </controls:SimpleStackPanel.Resources>
                         <controls:SimpleStackPanel Orientation="Horizontal"
                                                    Spacing="8">
@@ -93,10 +91,13 @@
                                                  MaxDecimalPlaces="0"
                                                  FixedWidth="True"
                                                  IsEnabled="{Binding CanChangeTime}"/>
-                            <Button Command="{s:Action SetTimeToNow}"
-                                    IsEnabled="{Binding CanChangeTime}">Now</Button>
-                            <Button Command="{s:Action StartStopTimer}"
-                                    Content="{Binding TimerText}"/>
+                            <controls:Button Variant="Outlined"
+                                             Command="{s:Action SetTimeToNow}"
+                                             IsEnabled="{Binding CanChangeTime}"
+                                             Content="Now" />
+                            <controls:Button Variant="Outlined"
+                                             Command="{s:Action StartStopTimer}"
+                                             Content="{Binding TimerText}" />
                         </controls:SimpleStackPanel>
                         <TextBlock Text="{Binding ScheduledTimeText}"
                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"

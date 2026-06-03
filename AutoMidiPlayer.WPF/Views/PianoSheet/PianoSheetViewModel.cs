@@ -78,7 +78,7 @@ public class PianoSheetViewModel : Screen, IHandle<OpenedFileChangedNotification
     }
 
     public bool IsDelimiterWarningVisible { get; private set; }
-    public string DelimiterWarningText { get; private set; }
+    public string DelimiterWarningText { get; private set; } = string.Empty;
 
     [OnChangedMethod(nameof(Update))]
     public int Bars

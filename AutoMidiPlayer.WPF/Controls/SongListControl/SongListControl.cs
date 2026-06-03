@@ -217,7 +217,7 @@ public partial class SongListControl : UserControl
 
     private void PlayPauseButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button button && button.Tag is MidiFile file)
+        if (sender is System.Windows.Controls.Button button && button.Tag is MidiFile file)
         {
             RaiseEvent(new SongListEventArgs(PlayPauseClickEvent, this, file));
             e.Handled = true;
@@ -226,7 +226,7 @@ public partial class SongListControl : UserControl
 
     private void MenuButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button { Tag: MidiFile file } button)
+        if (sender is System.Windows.Controls.Button { Tag: MidiFile file } button)
         {
             RaiseEvent(new SongListEventArgs(MenuClickEvent, this, file));
 

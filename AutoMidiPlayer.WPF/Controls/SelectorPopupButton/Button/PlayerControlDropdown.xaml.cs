@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
@@ -33,9 +34,12 @@ public partial class PlayerControlDropdown : UserControl
     public static readonly DependencyProperty IsActiveProperty =
         DependencyProperty.Register(nameof(IsActive), typeof(bool), typeof(PlayerControlDropdown), new PropertyMetadata(false));
 
+    private DateTime _lastPopupCloseTime = DateTime.MinValue;
+
     public PlayerControlDropdown()
     {
         InitializeComponent();
+        MenuPopup.Closed += (_, _) => _lastPopupCloseTime = DateTime.UtcNow;
     }
 
     public object? ButtonContent
@@ -82,6 +86,12 @@ public partial class PlayerControlDropdown : UserControl
 
     private void SelectorButton_Click(object sender, RoutedEventArgs e)
     {
+        if (!MenuPopup.IsOpen && (DateTime.UtcNow - _lastPopupCloseTime).TotalMilliseconds < 250)
+        {
+            e.Handled = true;
+            return;
+        }
+
         MenuPopup.IsOpen = !MenuPopup.IsOpen;
         e.Handled = true;
     }

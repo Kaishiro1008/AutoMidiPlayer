@@ -165,6 +165,7 @@ public partial class StandardDropdown : UserControl
         Interval = TimeSpan.FromMilliseconds(450)
     };
     private bool _isLoaded = false;
+    private DateTime _lastPopupCloseTime = DateTime.MinValue;
 
     public event SelectionChangedEventHandler SelectionChanged
     {
@@ -183,6 +184,7 @@ public partial class StandardDropdown : UserControl
         };
 
         Loaded += (_, _) => _isLoaded = true;
+        MenuPopup.Closed += (_, _) => _lastPopupCloseTime = DateTime.UtcNow;
     }
 
     public object? ButtonContent
@@ -245,24 +247,16 @@ public partial class StandardDropdown : UserControl
         set => SetValue(PopupMaxHeightProperty, value);
     }
 
-    private void SelectorButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-    {
-        if (!MenuPopup.IsOpen)
-            return;
-
-        MenuPopup.IsOpen = false;
-        e.Handled = true;
-    }
-
     private void SelectorButton_Click(object sender, RoutedEventArgs e)
     {
-        TogglePopup();
-        e.Handled = true;
-    }
+        if (!MenuPopup.IsOpen && (DateTime.UtcNow - _lastPopupCloseTime).TotalMilliseconds < 250)
+        {
+            e.Handled = true;
+            return;
+        }
 
-    private void TogglePopup()
-    {
         MenuPopup.IsOpen = !MenuPopup.IsOpen;
+        e.Handled = true;
     }
 
     private void MenuPopup_SelectionChanged(object sender, SelectionChangedEventArgs e)

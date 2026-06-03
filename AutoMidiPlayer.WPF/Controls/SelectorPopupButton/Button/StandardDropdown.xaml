@@ -49,7 +49,6 @@
             </Border.Style>
         </Border>
         <Button x:Name="SelectorButton"
-                PreviewMouseLeftButtonDown="SelectorButton_PreviewMouseLeftButtonDown"
                 Click="SelectorButton_Click"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"

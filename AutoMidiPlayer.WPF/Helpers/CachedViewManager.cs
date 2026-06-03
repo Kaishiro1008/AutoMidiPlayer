@@ -44,6 +44,6 @@ public class CachedViewManager : ViewManager
             _viewCache[modelType] = view;
         }
 
-        return view;
+        return view!;
     }
 }

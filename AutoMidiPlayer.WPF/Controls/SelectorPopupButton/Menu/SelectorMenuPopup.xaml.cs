@@ -66,6 +66,8 @@ public partial class SelectorMenuPopup : UserControl
         remove => RemoveHandler(SelectionChangedEvent, value);
     }
 
+    public event EventHandler? Closed;
+
     public SelectorMenuPopup()
     {
         InitializeComponent();
@@ -168,6 +170,7 @@ public partial class SelectorMenuPopup : UserControl
         IsOpen = false;
         _isClosingAnimationRunning = false;
         _scrollAnimator?.Stop();
+        Closed?.Invoke(this, EventArgs.Empty);
     }
 
     private void PlayOpenAnimation()

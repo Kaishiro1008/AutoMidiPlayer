@@ -15,6 +15,90 @@
     <UserControl.Resources>
         <properties:Settings x:Key="Settings"/>
 
+        <ControlTemplate x:Key="ContributorButtonTemplate" TargetType="Button">
+            <Border CornerRadius="20"
+                    Background="{DynamicResource ControlFillColorDefaultBrush}"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                    Padding="4">
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="32"
+                            Height="32"
+                            CornerRadius="16"
+                            Background="{DynamicResource ControlFillColorSecondaryBrush}">
+                        <Grid>
+                            <ui:SymbolIcon Symbol="Person24"
+                                           FontSize="16"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            <Image Source="{Binding AvatarPath, TargetNullValue={x:Null}}"
+                                   Stretch="UniformToFill">
+                                <Image.Clip>
+                                    <EllipseGeometry RadiusX="16"
+                                                     RadiusY="16"
+                                                     Center="16,16"/>
+                                </Image.Clip>
+                            </Image>
+                        </Grid>
+                    </Border>
+                    <Grid x:Name="NameGrid" MaxWidth="0" Opacity="0">
+                        <TextBlock Text="{Binding Name}"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,12,0"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Trigger.EnterActions>
+                        <StopStoryboard BeginStoryboardName="ExitStoryboard"/>
+                        <BeginStoryboard Name="EnterStoryboard">
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="NameGrid"
+                                                 Storyboard.TargetProperty="MaxWidth"
+                                                 To="120"
+                                                 Duration="0:0:0.25">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseInOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetName="NameGrid"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 To="1"
+                                                 Duration="0:0:0.25">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseInOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard Name="ExitStoryboard">
+                            <Storyboard BeginTime="0:0:0.1">
+                                <DoubleAnimation Storyboard.TargetName="NameGrid"
+                                                 Storyboard.TargetProperty="MaxWidth"
+                                                 To="0"
+                                                 Duration="0:0:0.25">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseInOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetName="NameGrid"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 To="0"
+                                                 Duration="0:0:0.25">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseInOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
         <Style x:Key="AnimatedCardButtonStyle"
                TargetType="Button">
             <Setter Property="BorderThickness"
@@ -265,98 +349,8 @@
                                         Margin="0,0,8,8"
                                         BorderThickness="0"
                                         Background="Transparent"
-                                        Cursor="Hand">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <ContentPresenter/>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                    <Border CornerRadius="20"
-                                            Background="{DynamicResource ControlFillColorDefaultBrush}"
-                                            BorderThickness="1"
-                                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
-                                            Padding="4">
-                                        <StackPanel Orientation="Horizontal">
-                                            <Border Width="32"
-                                                    Height="32"
-                                                    CornerRadius="16"
-                                                    Background="{DynamicResource ControlFillColorSecondaryBrush}">
-                                                <Grid>
-                                                    <ui:SymbolIcon Symbol="Person24"
-                                                                   FontSize="16"
-                                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                                                    <Image Source="{Binding AvatarPath, TargetNullValue={x:Null}}"
-                                                           Stretch="UniformToFill">
-                                                        <Image.Clip>
-                                                            <EllipseGeometry RadiusX="16"
-                                                                             RadiusY="16"
-                                                                             Center="16,16"/>
-                                                        </Image.Clip>
-                                                    </Image>
-                                                </Grid>
-                                            </Border>
-                                            <Grid>
-                                                <Grid.Style>
-                                                    <Style TargetType="Grid">
-                                                        <Setter Property="MaxWidth"
-                                                                Value="0"/>
-                                                        <Setter Property="Opacity"
-                                                                Value="0"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}"
-                                                                         Value="True">
-                                                                <DataTrigger.EnterActions>
-                                                                    <BeginStoryboard>
-                                                                        <Storyboard>
-                                                                            <DoubleAnimation Storyboard.TargetProperty="MaxWidth"
-                                                                                             To="120"
-                                                                                             Duration="0:0:0.25">
-                                                                                <DoubleAnimation.EasingFunction>
-                                                                                    <CubicEase EasingMode="EaseInOut"/>
-                                                                                </DoubleAnimation.EasingFunction>
-                                                                            </DoubleAnimation>
-                                                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                                                             To="1"
-                                                                                             Duration="0:0:0.25">
-                                                                                <DoubleAnimation.EasingFunction>
-                                                                                    <CubicEase EasingMode="EaseInOut"/>
-                                                                                </DoubleAnimation.EasingFunction>
-                                                                            </DoubleAnimation>
-                                                                        </Storyboard>
-                                                                    </BeginStoryboard>
-                                                                </DataTrigger.EnterActions>
-                                                                <DataTrigger.ExitActions>
-                                                                    <BeginStoryboard>
-                                                                        <Storyboard>
-                                                                            <DoubleAnimation Storyboard.TargetProperty="MaxWidth"
-                                                                                             To="0"
-                                                                                             Duration="0:0:0.25">
-                                                                                <DoubleAnimation.EasingFunction>
-                                                                                    <CubicEase EasingMode="EaseInOut"/>
-                                                                                </DoubleAnimation.EasingFunction>
-                                                                            </DoubleAnimation>
-                                                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                                                             To="0"
-                                                                                             Duration="0:0:0.25">
-                                                                                <DoubleAnimation.EasingFunction>
-                                                                                    <CubicEase EasingMode="EaseInOut"/>
-                                                                                </DoubleAnimation.EasingFunction>
-                                                                            </DoubleAnimation>
-                                                                        </Storyboard>
-                                                                    </BeginStoryboard>
-                                                                </DataTrigger.ExitActions>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Grid.Style>
-                                                <TextBlock Text="{Binding Name}"
-                                                           VerticalAlignment="Center"
-                                                           Margin="12,0,12,0"
-                                                           TextTrimming="CharacterEllipsis"/>
-                                            </Grid>
-                                        </StackPanel>
-                                    </Border>
-                                </Button>
+                                        Cursor="Hand"
+                                        Template="{StaticResource ContributorButtonTemplate}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

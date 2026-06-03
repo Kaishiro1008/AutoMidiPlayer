@@ -3,6 +3,7 @@
                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                   xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
                   xmlns:helpers="clr-namespace:AutoMidiPlayer.WPF.Helpers"
+                  xmlns:controls="clr-namespace:AutoMidiPlayer.WPF.Controls"
                   IsFooterVisible="False"
                   CloseButtonText="{x:Null}"
                   PrimaryButtonText="{x:Null}"
@@ -25,18 +26,15 @@
                 <TextBlock Text="{Binding DialogSubtitle}" FontSize="12" Opacity="0.7" Margin="0,4,0,0"/>
             </StackPanel>
 
-            <Button Grid.Column="1"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Padding="6"
-                    Margin="16,0,0,0"
-                    VerticalAlignment="Top"
-                    Click="CloseButton_Click"
-                    Cursor="Hand"
-                    ToolTip="Close"
-                    Foreground="{DynamicResource TextFillColorSecondaryBrush}">
-                <ui:SymbolIcon Symbol="Dismiss24" FontSize="16"/>
-            </Button>
+            <controls:Button Grid.Column="1"
+                             Variant="Ghost"
+                             Margin="16,0,0,0"
+                             VerticalAlignment="Top"
+                             Click="CloseButton_Click"
+                             ToolTip="Close"
+                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                             Icon="Dismiss24"
+                             IconFontSize="16" />
         </Grid>
     </ui:ContentDialog.Title>
 
