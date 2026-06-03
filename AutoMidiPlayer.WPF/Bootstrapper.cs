@@ -297,6 +297,9 @@ public class Bootstrapper : Bootstrapper<MainWindowViewModel>
 
         // Register GlobalHotkeyService as singleton
         builder.Bind<Services.GlobalHotkeyService>().ToSelf().InSingletonScope();
+        
+        // Register UpdateService as singleton
+        builder.Bind<Services.UpdateService>().ToSelf().InSingletonScope();
 
         // Theme service removed in WPF-UI 3.x - use centralized SystemThemeService
         AutoMidiPlayer.WPF.Services.SystemThemeService.Start();

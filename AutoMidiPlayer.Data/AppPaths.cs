@@ -82,6 +82,11 @@ public static class AppPaths
     public static readonly string AppStatusFilePath = Path.Combine(AppDataDirectory, "status");
 
     /// <summary>
+    /// Path to the update cache directory (cache/update)
+    /// </summary>
+    public static readonly string UpdateCacheDirectory = Path.Combine(AppDataDirectory, "cache", "update");
+
+    /// <summary>
     /// Ensures the app data directory exists
     /// </summary>
     public static void EnsureDirectoryExists()

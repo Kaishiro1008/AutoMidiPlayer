@@ -53,6 +53,36 @@ namespace AutoMidiPlayer.Data.Properties
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int UpdateCheckFrequency
+        {
+            get
+            {
+                return ((int)(this["UpdateCheckFrequency"]));
+            }
+            set
+            {
+                this["UpdateCheckFrequency"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoDownloadUpdates
+        {
+            get
+            {
+                return ((bool)(this["AutoDownloadUpdates"]));
+            }
+            set
+            {
+                this["AutoDownloadUpdates"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool AutoCheckUpdates
         {

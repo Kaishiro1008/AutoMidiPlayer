@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -9,6 +10,9 @@ namespace AutoMidiPlayer.WPF.Dialogs;
 public partial class UpdateProgressDialog : ContentDialog, INotifyPropertyChanged
 {
     private string _progressText = "Preparing...";
+    private string _progressDetailText = "";
+    private double _progressPercentage = 0;
+    private bool _isProgressIndeterminate = false;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -20,6 +24,45 @@ public partial class UpdateProgressDialog : ContentDialog, INotifyPropertyChange
             if (_progressText != value)
             {
                 _progressText = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public string ProgressDetailText
+    {
+        get => _progressDetailText;
+        set
+        {
+            if (_progressDetailText != value)
+            {
+                _progressDetailText = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public double ProgressPercentage
+    {
+        get => _progressPercentage;
+        set
+        {
+            if (Math.Abs(_progressPercentage - value) > 0.01)
+            {
+                _progressPercentage = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public bool IsProgressIndeterminate
+    {
+        get => _isProgressIndeterminate;
+        set
+        {
+            if (_isProgressIndeterminate != value)
+            {
+                _isProgressIndeterminate = value;
                 OnPropertyChanged();
             }
         }

@@ -8,6 +8,12 @@
     <Setting Name="ThirdPartyLicenseUri" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">https://github.com/Jed556/AutoMidiPlayer/blob/main/THIRD-PARTY-NOTICES.md</Value>
     </Setting>
+    <Setting Name="UpdateCheckFrequency" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="AutoDownloadUpdates" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="AutoCheckUpdates" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>

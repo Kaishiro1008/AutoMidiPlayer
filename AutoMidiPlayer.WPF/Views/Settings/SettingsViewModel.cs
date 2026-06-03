@@ -66,6 +66,15 @@ public class SettingsPageViewModel : Screen
         new("Use system setting", WpfUiApplicationTheme.Unknown)
     };
 
+    public static List<UpdateCheckFrequencyOption> UpdateCheckFrequencyOptions { get; } = new()
+    {
+        new("10 Minutes", 0),
+        new("Hourly", 1),
+        new("Daily", 2),
+        new("Weekly", 3),
+        new("On Launch", 4)
+    };
+
     public static List<KeypressInputModeOption> KeypressInputModes { get; } = new()
     {
         new(
@@ -99,11 +108,14 @@ public class SettingsPageViewModel : Screen
     private readonly IEventAggregator _events;
     private readonly MainWindowViewModel _main;
     private readonly GlobalHotkeyService _hotkeyService;
+    private readonly UpdateService _updateService;
     private AccentColorOption _selectedAccentColor = null!;
     private bool _isApplyingKeypressMode;
     private MouseStopClickOption _selectedMouseStopClickOption = null!;
     private KeypressInputModeOption _selectedKeypressInputMode = null!;
     private ThemeOption _selectedTheme = null!;
+    private UpdateCheckFrequencyOption _selectedUpdateCheckFrequency = null!;
+
     private MusicConstants.KeyOption _selectedNewSongBaseKeyOption = null!;
     private MusicConstants.KeyOption _selectedNewSongKeyOption = null!;
     private KeyValuePair<Transpose, string> _selectedNewSongTransposeOption;
@@ -123,6 +135,7 @@ public class SettingsPageViewModel : Screen
 
         // Initialize global hotkey service
         _hotkeyService = ioc.Get<GlobalHotkeyService>();
+        _updateService = ioc.Get<UpdateService>();
 
         // Initialize theme from settings
         _selectedTheme = Settings.AppTheme switch
@@ -163,6 +176,33 @@ public class SettingsPageViewModel : Screen
             Settings.Modify(s => s.CrashLogVerbosity = CrashLogVerbosity);
 
         ConfigureMidiFolderWatcher();
+
+        // Initialize update frequency from settings
+        var freqValue = Settings.UpdateCheckFrequency;
+        _selectedUpdateCheckFrequency = UpdateCheckFrequencyOptions.FirstOrDefault(o => o.Value == freqValue)
+            ?? UpdateCheckFrequencyOptions.Last();
+
+        _updateService.UpdateAvailable += (s, newVersion) => 
+        {
+            LatestVersion = newVersion;
+            UpdateString = "(Update available!)";
+            NotifyOfPropertyChange(() => NeedsUpdate);
+        };
+
+        _updateService.BackgroundDownloadCompleted += (s, args) =>
+        {
+            var (success, version, errorMsg) = args;
+            if (System.Windows.Application.Current?.Dispatcher?.CheckAccess() == false)
+            {
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(() => ShowAutoDownloadSnackbar(success, version, errorMsg));
+            }
+            else
+            {
+                ShowAutoDownloadSnackbar(success, version, errorMsg);
+            }
+        };
+
+        _updateService.ConfigureUpdateCheckTimer();
     }
 
     /// <summary>Observable collection of game location entries for the settings UI</summary>
@@ -255,7 +295,41 @@ public class SettingsPageViewModel : Screen
 
 
 
-    public bool AutoCheckUpdates { get; set; } = Settings.AutoCheckUpdates;
+    public bool AutoCheckUpdates
+    {
+        get => Settings.AutoCheckUpdates;
+        set
+        {
+            if (Settings.AutoCheckUpdates == value) return;
+            Settings.Modify(s => s.AutoCheckUpdates = value);
+            NotifyOfPropertyChange();
+            _updateService.ConfigureUpdateCheckTimer();
+        }
+    }
+
+    public bool AutoDownloadUpdates
+    {
+        get => Settings.AutoDownloadUpdates;
+        set
+        {
+            if (Settings.AutoDownloadUpdates == value) return;
+            Settings.Modify(s => s.AutoDownloadUpdates = value);
+            NotifyOfPropertyChange();
+        }
+    }
+
+    public UpdateCheckFrequencyOption SelectedUpdateCheckFrequency
+    {
+        get => _selectedUpdateCheckFrequency;
+        set
+        {
+            if (SetAndNotify(ref _selectedUpdateCheckFrequency, value))
+            {
+                Settings.Modify(s => s.UpdateCheckFrequency = value.Value);
+                _updateService.ConfigureUpdateCheckTimer();
+            }
+        }
+    }
 
     public bool DebugModeEnabled { get; set; } = Settings.DebugModeEnabled;
 
@@ -766,10 +840,19 @@ public class SettingsPageViewModel : Screen
 
         try
         {
-            LatestVersion = await GetLatestVersion() ?? new GitVersion();
-            UpdateString = LatestVersion.Version > ProgramVersion
-                ? "(Update available!)"
-                : string.Empty;
+            LatestVersion = await _updateService.CheckForUpdatesAsync(IncludeBetaUpdates, ProgramVersion) ?? new GitVersion();
+            if (LatestVersion.Version > ProgramVersion)
+            {
+                UpdateString = "(Update available!)";
+                if (AutoDownloadUpdates)
+                {
+                    _ = _updateService.BackgroundDownloadUpdateAsyncWrapper(LatestVersion);
+                }
+            }
+            else
+            {
+                UpdateString = string.Empty;
+            }
         }
         catch (Exception)
         {
@@ -782,12 +865,40 @@ public class SettingsPageViewModel : Screen
         }
     }
 
+    private void ShowAutoDownloadSnackbar(bool success, string version, string errorMsg)
+    {
+        if (success)
+        {
+            var snackbar = new Snackbar(MainWindowViewModel.SnackbarPresenter)
+            {
+                Title = "Update downloaded",
+                Content = $"Version {version} is ready to install.",
+                Appearance = ControlAppearance.Success,
+                Icon = new SymbolIcon { Symbol = SymbolRegular.Checkmark24 },
+                Timeout = TimeSpan.FromSeconds(5)
+            };
+            snackbar.Show();
+        }
+        else
+        {
+            var snackbar = new Snackbar(MainWindowViewModel.SnackbarPresenter)
+            {
+                Title = "Auto-download failed",
+                Content = string.IsNullOrEmpty(errorMsg) ? "Failed to auto-download update." : errorMsg,
+                Appearance = ControlAppearance.Danger,
+                Icon = new SymbolIcon { Symbol = SymbolRegular.ErrorCircle24 },
+                Timeout = TimeSpan.FromSeconds(8)
+            };
+            snackbar.Show();
+        }
+    }
+
     public async Task ShowUpdateDialog()
     {
         if (LatestVersion == null || ProgramVersion >= LatestVersion.Version)
             return;
 
-        await UpdateDialog.ShowAsync(LatestVersion);
+        await UpdateDialog.ShowAsync(LatestVersion, _updateService);
     }
 
     public async Task LocationMissing()
@@ -1306,9 +1417,6 @@ public class SettingsPageViewModel : Screen
     protected override void OnActivate()
     {
         Logger.LogPageVisit("Settings", source: "screen-activate");
-
-        if (AutoCheckUpdates)
-            _ = CheckForUpdate();
     }
 
     protected override void OnDeactivate()
@@ -1316,33 +1424,11 @@ public class SettingsPageViewModel : Screen
         base.OnDeactivate();
     }
 
-    private async Task<GitVersion?> GetLatestVersion()
-    {
-        var client = new HttpClient();
-        var request = new HttpRequestMessage(HttpMethod.Get,
-            "https://api.github.com/repos/Jed556/AutoMidiPlayer/releases");
 
-        var productInfo = new ProductInfoHeaderValue("AutoMidiPlayer", ProgramVersion.ToString());
-        request.Headers.UserAgent.Add(productInfo);
-
-        var response = await client.SendAsync(request);
-
-        if (!response.IsSuccessStatusCode)
-            return null;
-
-        var versions = await response.Content.ReadFromJsonAsync<List<GitVersion>>();
-
-        return versions?
-            .OrderByDescending(v => v.Version)
-            .FirstOrDefault(v => (!v.Draft && !v.Prerelease) || IncludeBetaUpdates);
-    }
 
     [UsedImplicitly]
     private void OnAutoCheckUpdatesChanged()
     {
-        if (AutoCheckUpdates)
-            _ = CheckForUpdate();
-
         Settings.Modify(s => s.AutoCheckUpdates = AutoCheckUpdates);
     }
 
@@ -1384,7 +1470,7 @@ public class SettingsPageViewModel : Screen
     }
 
     [UsedImplicitly]
-    private void OnIncludeBetaUpdatesChanged() => _ = CheckForUpdate();
+    private void OnIncludeBetaUpdatesChanged() { }
 
     [UsedImplicitly]
     private void OnDefaultSongArtistChanged()
@@ -1591,6 +1677,14 @@ public class MouseStopClickOption(string name, MouseStopClickMode mode)
 {
     public string Name { get; } = name;
     public MouseStopClickMode Mode { get; } = mode;
+
+    public override string ToString() => Name;
+}
+
+public class UpdateCheckFrequencyOption(string name, int value)
+{
+    public string Name { get; } = name;
+    public int Value { get; } = value;
 
     public override string ToString() => Name;
 }

@@ -691,12 +691,35 @@
                             </controls:SimpleStackPanel>
 
                             <WrapPanel>
-                                <ui:ToggleSwitch Content="Auto-check updates"
-                                                 IsChecked="{Binding AutoCheckUpdates}"
-                                                 Margin="0,0,16,8"/>
-                                <ui:ToggleSwitch Content="Include beta updates"
-                                                 IsChecked="{Binding IncludeBetaUpdates}"
-                                                 Margin="0,0,16,8"/>
+                                <GroupBox Header="Auto-Check Updates"
+                                        Margin="0,0,16,8">
+                                    <controls:SimpleStackPanel Spacing="8">
+                                        <ui:ToggleSwitch Content="Auto-check"
+                                                         IsChecked="{Binding AutoCheckUpdates}"/>
+                                        <button:StandardDropdown SelectedItem="{Binding SelectedUpdateCheckFrequency}"
+                                                                 ItemsSource="{x:Static viewModels:SettingsPageViewModel.UpdateCheckFrequencyOptions}"
+                                                                 DisplayMemberPath="Name"
+                                                                 HorizontalAlignment="Left"
+                                                                 IsEnabled="{Binding AutoCheckUpdates}"/>
+                                    </controls:SimpleStackPanel>
+                                </GroupBox>
+                                <GroupBox Header="Auto-Download Updates"
+                                        Margin="0,0,16,8">
+                                    <controls:SimpleStackPanel Spacing="8">
+                                        <ui:ToggleSwitch Content="Auto-download"
+                                                         IsChecked="{Binding AutoDownloadUpdates}"/>
+                                        <TextBlock Text="Downloads updates in the background when available."
+                                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                                   FontSize="12"
+                                                   TextWrapping="Wrap"
+                                                   MaxWidth="200"/>
+                                    </controls:SimpleStackPanel>
+                                </GroupBox>
+                                <GroupBox Header="Include Beta Updates"
+                                        Margin="0,0,16,8">
+                                    <ui:ToggleSwitch Content="Beta Updates"
+                                                     IsChecked="{Binding IncludeBetaUpdates}"/>
+                                </GroupBox>
                             </WrapPanel>
                         </controls:SimpleStackPanel>
                     </controls:Section>

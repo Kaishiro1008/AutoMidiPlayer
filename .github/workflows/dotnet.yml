@@ -196,6 +196,10 @@ jobs:
           Copy-Item $netArchive ".\AutoMidiPlayer_${version}_win-x64-net-install.zip" -Force
           Copy-Item $portableArchive ".\AutoMidiPlayer_${version}_win-x64-portable.zip" -Force
 
+          # Create checksums.txt
+          $checksums = "$netHash  AutoMidiPlayer_${version}_win-x64-net-install.zip`r`n$portableHash  AutoMidiPlayer_${version}_win-x64-portable.zip"
+          Set-Content -Path ".\checksums.txt" -Value $checksums -Encoding UTF8
+
       - name: Inspect release assets
         run: |
           Get-ChildItem .\AutoMidiPlayer_*_win-x64_* | Select Name,Length
@@ -208,5 +212,6 @@ jobs:
           files: |
              AutoMidiPlayer_${{ needs.prepare.outputs.version }}_win-x64-net-install.zip
              AutoMidiPlayer_${{ needs.prepare.outputs.version }}_win-x64-portable.zip
+             checksums.txt
           overwrite_files: true
           token: ${{ secrets.GITHUB_TOKEN }}

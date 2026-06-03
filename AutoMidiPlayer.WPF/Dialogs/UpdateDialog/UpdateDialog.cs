@@ -13,6 +13,7 @@ using System.Windows;
 using AutoMidiPlayer.Data;
 using AutoMidiPlayer.Data.Git;
 using AutoMidiPlayer.WPF.Helpers;
+using AutoMidiPlayer.WPF.Services;
 using Wpf.Ui.Controls;
 
 namespace AutoMidiPlayer.WPF.Dialogs;
@@ -20,8 +21,10 @@ namespace AutoMidiPlayer.WPF.Dialogs;
 public partial class UpdateDialog : ContentDialog, INotifyPropertyChanged
 {
     private readonly GitVersion _latestVersion;
+    private readonly UpdateService _updateService;
     private bool _isUpdating;
     private bool _clearAppData;
+    private bool _forceRedownload;
     private string _selectedVersionType = "Portable";
     private string _progressText = "";
 
@@ -52,6 +55,21 @@ public partial class UpdateDialog : ContentDialog, INotifyPropertyChanged
             if (_clearAppData != value)
             {
                 _clearAppData = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public bool HasCachedUpdate => AutoMidiPlayer.Data.Properties.Settings.Default.AutoDownloadUpdates && File.Exists(Path.Combine(AppPaths.UpdateCacheDirectory, "update.zip")) && File.Exists(Path.Combine(AppPaths.UpdateCacheDirectory, "checksums.txt"));
+
+    public bool ForceRedownload
+    {
+        get => _forceRedownload;
+        set
+        {
+            if (_forceRedownload != value)
+            {
+                _forceRedownload = value;
                 OnPropertyChanged();
             }
         }
@@ -116,9 +134,10 @@ public partial class UpdateDialog : ContentDialog, INotifyPropertyChanged
         }
     }
 
-    public UpdateDialog(GitVersion latestVersion)
+    public UpdateDialog(GitVersion latestVersion, UpdateService updateService)
     {
         _latestVersion = latestVersion;
+        _updateService = updateService;
         InitializeComponent();
 
         DialogHelper.SetupDialogHost(this);
@@ -146,11 +165,11 @@ public partial class UpdateDialog : ContentDialog, INotifyPropertyChanged
             SelectedVersionType = "Net-Install";
     }
 
-    public static async Task ShowAsync(GitVersion latestVersion)
+    public static async Task ShowAsync(GitVersion latestVersion, UpdateService updateService)
     {
         try
         {
-            var dialog = new UpdateDialog(latestVersion);
+            var dialog = new UpdateDialog(latestVersion, updateService);
 
             var hostReady = await DialogHelper.EnsureDialogHostAsync(dialog);
             if (hostReady)
@@ -176,92 +195,21 @@ public partial class UpdateDialog : ContentDialog, INotifyPropertyChanged
         UpdateProgressDialog? progressDialog = null;
         try
         {
-            var assetNameSearch = SelectedVersionType == "Portable" ? "win-x64-portable.zip" : "win-x64-net-install.zip";
-            var asset = _latestVersion.Assets.FirstOrDefault(a => a.Name.Contains(assetNameSearch, StringComparison.OrdinalIgnoreCase));
-
-            if (asset == null)
-            {
-                // Note: The dialog already closed, so we could show an error dialog instead
-                System.Windows.MessageBox.Show($"Error: Could not find {SelectedVersionType} zip in the release assets.", "Update Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                IsUpdating = false;
-                return;
-            }
-
             progressDialog = new UpdateProgressDialog();
             _ = progressDialog.ShowAsync();
 
-            progressDialog.ProgressText = "Downloading update...";
-            
-            var tempDir = Path.Combine(Path.GetTempPath(), "AutoMidiPlayerUpdate");
-            if (Directory.Exists(tempDir))
-                Directory.Delete(tempDir, true);
-            Directory.CreateDirectory(tempDir);
-            
-            var zipPath = Path.Combine(tempDir, "update.zip");
-            using var client = new HttpClient();
-            var productInfo = new ProductInfoHeaderValue("AutoMidiPlayer", AutoMidiPlayer.WPF.ViewModels.SettingsPageViewModel.ProgramVersion.ToString());
-            client.DefaultRequestHeaders.UserAgent.Add(productInfo);
-            
-            var response = await client.GetAsync(asset.DownloadUrl);
-            response.EnsureSuccessStatusCode();
-            
-            await using (var fs = new FileStream(zipPath, FileMode.Create, FileAccess.Write))
+            var progress = new Progress<UpdateProgressInfo>(info => 
             {
-                await response.Content.CopyToAsync(fs);
-            }
-
-            progressDialog.ProgressText = "Extracting update...";
-            ZipFile.ExtractToDirectory(zipPath, tempDir, true);
-
-            var appDir = AppDomain.CurrentDomain.BaseDirectory;
-            var executablePath = Environment.ProcessPath;
-            var currentProcessId = Environment.ProcessId;
-
-            var escapedTempPath = tempDir.Replace("'", "''");
-            var escapedAppPath = appDir.Replace("'", "''");
-            var escapedExecutablePath = executablePath?.Replace("'", "''") ?? "";
-            var escapedStatusFilePath = AppPaths.AppStatusFilePath.Replace("'", "''");
-            var escapedAppDataPath = AppPaths.AppDataDirectory.Replace("'", "''");
-            
-            var clearDataCommand = ClearAppData 
-                ? $"Remove-Item -LiteralPath '{escapedAppDataPath}' -Recurse -Force -ErrorAction SilentlyContinue; " +
-                  $"New-Item -ItemType Directory -Path '{escapedAppDataPath}' -Force | Out-Null; "
-                : "";
-
-            var currentVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "Unknown";
-            var updateStatusString = $"[{DateTime.Now:HH:mm:ss}] UPDATE: v{currentVersion} -> v{_latestVersion.Version}";
-
-            var updateCommand = $"Start-Sleep -Seconds 1; " +
-                                $"Wait-Process -Id {currentProcessId} -ErrorAction SilentlyContinue; " +
-                                $"Remove-Item -Path '{escapedTempPath}\\update.zip' -Force; " +
-                                clearDataCommand +
-                                $"Copy-Item -Path '{escapedTempPath}\\*' -Destination '{escapedAppPath}' -Recurse -Force; " +
-                                $"New-Item -ItemType Directory -Path '{escapedAppDataPath}' -Force -ErrorAction SilentlyContinue | Out-Null; " +
-                                $"Set-Content -Path '{escapedStatusFilePath}' -Value '{updateStatusString}' -Force; " +
-                                $"Start-Process -FilePath '{escapedExecutablePath}'; " +
-                                $"Start-Sleep -Seconds 2; " +
-                                $"Remove-Item -LiteralPath '{escapedTempPath}' -Recurse -Force -ErrorAction SilentlyContinue;";
-
-            var arguments = $"-NoProfile -WindowStyle Hidden -Command \"{updateCommand}\"";
-
-            try
-            {
-                StartHelperProcess("pwsh.exe", arguments);
-            }
-            catch (Win32Exception)
-            {
-                try
+                if (progressDialog != null)
                 {
-                    StartHelperProcess("powershell.exe", arguments);
+                    if (info.ProgressText != null) progressDialog.ProgressText = info.ProgressText;
+                    if (info.ProgressDetailText != null) progressDialog.ProgressDetailText = info.ProgressDetailText;
+                    progressDialog.ProgressPercentage = info.ProgressPercentage;
+                    progressDialog.IsProgressIndeterminate = info.IsProgressIndeterminate;
                 }
-                catch (Win32Exception)
-                {
-                    progressDialog?.CloseDialog();
-                    System.Windows.MessageBox.Show("Failed to start PowerShell for update.", "Update Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                    IsUpdating = false;
-                    return;
-                }
-            }
+            });
+
+            await _updateService.RunUpdateAsync(_latestVersion, SelectedVersionType, ClearAppData, ForceRedownload, progress);
 
             System.Windows.Application.Current.Shutdown();
         }
@@ -270,24 +218,9 @@ public partial class UpdateDialog : ContentDialog, INotifyPropertyChanged
             Logger.LogException(ex);
             
             progressDialog?.CloseDialog();
-            System.Windows.MessageBox.Show("Update failed: " + ex.Message, "Update Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            MessageBoxHelper.ShowError("Update failed: " + ex.Message, "Update Error");
             IsUpdating = false;
         }
-    }
-
-    private static void StartHelperProcess(string shellPath, string arguments)
-    {
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = shellPath,
-            Arguments = arguments,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        var process = Process.Start(startInfo);
-        if (process is null)
-            throw new InvalidOperationException("Failed to start helper process.");
     }
 
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
