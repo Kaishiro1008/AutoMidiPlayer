@@ -10,7 +10,7 @@ using System.Windows.Threading;
 using AutoMidiPlayer.WPF.Animation;
 using Wpf.Ui.Appearance;
 
-namespace AutoMidiPlayer.WPF.Controls;
+namespace AutoMidiPlayer.WPF.Controls.PlayerControlPanel;
 
 public partial class Seekbar : UserControl
 {
