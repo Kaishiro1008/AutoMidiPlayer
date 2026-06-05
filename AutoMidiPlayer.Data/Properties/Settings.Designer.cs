@@ -594,6 +594,36 @@ namespace AutoMidiPlayer.Data.Properties
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public string BPSRLocation
+        {
+            get
+            {
+                return ((string)(this["BPSRLocation"]));
+            }
+            set
+            {
+                this["BPSRLocation"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ActiveBPSR
+        {
+            get
+            {
+                return ((bool)(this["ActiveBPSR"]));
+            }
+            set
+            {
+                this["ActiveBPSR"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int SelectedInstrument
         {
             get

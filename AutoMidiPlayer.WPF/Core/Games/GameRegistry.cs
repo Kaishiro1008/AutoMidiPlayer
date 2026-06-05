@@ -141,6 +141,21 @@ public static class GameRegistry
             setLocation: v => Settings.Modify(s => s.SkyLocation = v),
             getIsActive: () => Settings.ActiveSky,
             setIsActive: v => Settings.Modify(s => s.ActiveSky = v)
+        ),
+        new GameDefinition(
+            id: "BPSR",
+            displayName: "Blue Protocol: Star Resonance",
+            instrumentGameName: "BPSR",
+            imageResourcePath: "pack://application:,,,/Resources/Images/Games/BPSR.png",
+            processNames: ["BPSR"],
+            defaultExeName: "BPSR.exe",
+            defaultSearchPaths: [
+                @"C:\Program Files\MyGame\MyGame.exe",
+            ],
+            getLocation: () => Settings.BPSRLocation,
+            setLocation: v => Settings.Modify(s => s.BPSRLocation = v),
+            getIsActive: () => Settings.ActiveBPSR,
+            setIsActive: v => Settings.Modify(s => s.ActiveBPSR = v)
         )
     ];
 

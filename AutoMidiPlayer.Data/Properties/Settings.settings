@@ -98,6 +98,9 @@
     <Setting Name="NTELocation" Type="System.String" Scope="User">
       <Value Profile="(Default)">HTGame.exe</Value>
     </Setting>
+    <Setting Name="BPSRLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">BPSR.exe</Value>
+    </Setting>
     <Setting Name="ActiveGenshin" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -114,6 +117,9 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="ActiveNTE" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ActiveBPSR" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="SelectedInstrument" Type="System.Int32" Scope="User">
